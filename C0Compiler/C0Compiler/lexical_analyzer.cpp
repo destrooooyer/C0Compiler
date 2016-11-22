@@ -367,7 +367,9 @@ Symble LexAnalyzer::getNextSymble()
 
 }
 
-
+Symble::Symble()
+{
+}
 
 Symble::Symble(string type)
 {

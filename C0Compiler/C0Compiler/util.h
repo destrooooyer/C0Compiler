@@ -10,6 +10,7 @@ public:
 	static bool isChr(char chr);			//to check whether a char belongs to {32,33,35-126}
 	static int parseInt(std::string str);	//parse int
 	static char parseChar(std::string str);	//parse char
+	static std::string int2string(int in);	//transfer int to char
 };
 
 

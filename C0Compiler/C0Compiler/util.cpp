@@ -1,5 +1,6 @@
 #include "util.h"
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -43,4 +44,13 @@ char util::parseChar(string str)
 {
 	//str is like "\'a\'"
 	return str[1];
+}
+
+string util::int2string(int in)
+{
+	stringstream ss;
+	ss << in;
+	string temp;
+	ss >> temp;
+	return temp;
 }

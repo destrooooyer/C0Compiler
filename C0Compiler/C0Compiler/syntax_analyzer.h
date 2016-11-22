@@ -4,6 +4,7 @@
 #include "lexical_analyzer.h"
 #include "util.h"
 #include "table.h"
+#include "intermediate_code_generator.h"
 
 #include <vector>
 #include <string>
@@ -21,7 +22,7 @@ private:
 class SyntaxAnalyzer
 {
 public:
-	SyntaxAnalyzer(std::vector<Symble> symbles,Table table);
+	SyntaxAnalyzer(std::vector<Symble> symbles);
 	bool program();						//＜程序＞ 
 	bool constExplanation();			//＜常量说明＞
 	bool varExplanation();				//＜变量说明＞
@@ -39,10 +40,10 @@ public:
 	bool statement();					//<语句>
 	bool ifStatement();					//<条件语句>
 	bool condition();					//<条件>
-	bool expression();					//<表达式>
-	bool term();						//<项>
-	bool factor();						//<因子>
-	bool returnFunctionCall();			//<有返回值函数调用语句>
+	std::string expression();			//<表达式>
+	std::string term();					//<项>
+	std::string factor();				//<因子>
+	std::string returnFunctionCall();	//<有返回值函数调用语句>
 	bool voidFunctionCall();			//<无返回值函数调用语句>
 	bool parameterList();				//<值参数表>
 	bool forStatement();				//<for循环语句>
@@ -52,6 +53,7 @@ public:
 	bool scanfStatement();				//<读语句>
 	bool returnStatement();				//<返回语句>
 	Table getTable();
+	std::vector<Quadruple> getIntermediateCodes();
 
 	bool infoSwitch;
 
@@ -59,6 +61,8 @@ public:
 
 private:
 	std::vector <Symble> symbles;
+	IMCodeGenerator imCodeGenerator;
+	TempNameManager tmpNameManager;
 	int iter;
 	std::vector<Error> syntaxErrors;
 	void printInfo(std::string str);

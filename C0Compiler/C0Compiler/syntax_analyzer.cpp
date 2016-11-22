@@ -5,17 +5,21 @@
 
 using namespace std;
 
-SyntaxAnalyzer::SyntaxAnalyzer(vector<Symble> symbles, Table table)
+SyntaxAnalyzer::SyntaxAnalyzer(vector<Symble> symbles)
 {
 	this->symbles = symbles;
 	this->iter = 0;
-	this->table = table;
 }
 
 void SyntaxAnalyzer::printInfo(string str)
 {
 	if (infoSwitch)
 		cout << str << endl;
+}
+
+vector<Quadruple> SyntaxAnalyzer::getIntermediateCodes()
+{
+	return imCodeGenerator.getQuadruples();
 }
 
 
@@ -572,7 +576,11 @@ bool SyntaxAnalyzer::returnFunctionDeclaration()
 					if (symbles[iter].getType() == "LBRACE")	//{
 					{
 						iter++;
+
+						imCodeGenerator.genProc(name);
 						compondStatement();
+						imCodeGenerator.genRet(name);
+
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
 							iter++;
@@ -645,7 +653,11 @@ bool SyntaxAnalyzer::voidFunctionDeclaration()
 					if (symbles[iter].getType() == "LBRACE")	//{
 					{
 						iter++;
+
+						imCodeGenerator.genProc(name);
 						compondStatement();
+						imCodeGenerator.genRet(name);
+
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
 							iter++;
@@ -688,11 +700,11 @@ bool SyntaxAnalyzer::voidFunctionDeclaration()
 //＜主函数＞    ::= void main‘(’‘)’ ‘{’＜复合语句＞‘}’
 bool SyntaxAnalyzer::mainFunction()
 {
-	string name= "main";
+	string name = "main";
 	string type = "void";
 	string kind = "main_function";
 	TableItem tableItem;
-	int value=0;
+	int value = 0;
 	//void
 	if (symbles[iter].getType() == "PRESERVED_WORD_VOID")
 	{
@@ -715,7 +727,11 @@ bool SyntaxAnalyzer::mainFunction()
 					if (symbles[iter].getType() == "LBRACE")	//{
 					{
 						iter++;
+
+						imCodeGenerator.genProc(name);
 						compondStatement();
+						imCodeGenerator.genRet(name);
+
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
 							iter++;
@@ -1015,50 +1031,109 @@ bool SyntaxAnalyzer::condition()
 }
 
 //＜表达式＞    ::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}
-bool SyntaxAnalyzer::expression()
+string SyntaxAnalyzer::expression()
 {
+	string tempName;
+	string arg1;
+	string arg2;
+	string op;
+	int flag = 0;
+
 	if (symbles[iter].getType() == "PLUS" ||
 		symbles[iter].getType() == "MINUS")
+	{
+		if (symbles[iter].getType() == "MINUS")
+			flag = 1;
 		iter++;
-	term();
+	}
+	arg1 = term();
+	if (flag == 1)
+	{
+		tempName = tmpNameManager.getTempName();
+		imCodeGenerator.gen4("-", "0", arg1, tempName);
+		arg1 = tempName;
+	}
 	while (symbles[iter].getType() == "PLUS" ||
 		symbles[iter].getType() == "MINUS")
 	{
+		op = symbles[iter].getValue();
 		iter++;
-		term();
+		arg2 = term();
+		tempName = tmpNameManager.getTempName();
+		imCodeGenerator.gen4(op, arg1, arg2, tempName);
+		arg1 = tempName;
 	}
 
 	printInfo("This is a <表达式>");
-	return true;
+	return arg1;
 }
 
 
 //＜项＞     ::= ＜因子＞{＜乘法运算符＞＜因子＞}
-bool SyntaxAnalyzer::term()
+string SyntaxAnalyzer::term()
 {
-	factor();
+	string tempName;
+	string arg1;
+	string arg2;
+	string op;
+	arg1 = factor();
 	while (symbles[iter].getType() == "TIMES" ||
 		symbles[iter].getType() == "SLASH")
 	{
+		op = symbles[iter].getValue();
 		iter++;
-		factor();
+		arg2 = factor();
+		tempName = tmpNameManager.getTempName();
+		imCodeGenerator.gen4(op, arg1, arg2, tempName);
+		arg1 = tempName;
 	}
 
 	printInfo("This is a <项>");
-	return true;
+	return arg1;
 }
 
 //＜因子＞    ::= ＜标识符＞｜＜标识符＞‘[’＜表达式＞‘]’｜＜整数＞|＜字符＞｜＜有返回值函数调用语句＞|‘(’＜表达式＞‘)’
-bool SyntaxAnalyzer::factor()
+string SyntaxAnalyzer::factor()
 {
+	string temp;
+	string kind;
+	string type;
+	string name;
+	TableItem tableItem;
+
 	//标识符
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name = symbles[iter].getValue();
+		if (table.check(funcName, name))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name);
+		}
+		else if (table.check("globle", name))
+		{
+			tableItem = table.get("globle", name);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter - 1].getLineNumber());
+		}
+
 		iter++;
 		if (symbles[iter].getType() == "LBRACKET")	//＜标识符＞‘[’＜表达式＞‘]’
 		{
 			iter++;
-			expression();
+
+			if (tableItem.getKind() == "array")
+			{
+				temp = name;
+			}
+			else	//identifier has a wrong kind, error
+			{
+				_error(28, symbles[iter - 1].getLineNumber());
+			}
+			temp += '[';
+			temp += expression();
+			temp += ']';
 			if (symbles[iter].getType() == "RBRACKET")
 			{
 				iter++;
@@ -1071,7 +1146,21 @@ bool SyntaxAnalyzer::factor()
 		if (symbles[iter].getType() == "LPAREN")	//＜有返回值函数调用语句＞
 		{
 			iter--;
-			returnFunctionCall();
+			temp = returnFunctionCall();
+		}
+		else	//＜标识符＞
+		{
+			if (tableItem.getKind() == "variable" ||
+				tableItem.getKind() == "const" ||
+				tableItem.getKind() == "parameter")
+			{
+				temp = name;
+			}
+			else	//identifier has a wrong kind, error
+			{
+				_error(28, symbles[iter - 1].getLineNumber());
+			}
+
 		}
 	}
 	//整数
@@ -1080,18 +1169,18 @@ bool SyntaxAnalyzer::factor()
 		symbles[iter].getType() == "UNSIGNEDINT" ||
 		symbles[iter].getType() == "ZERO")
 	{
-		integer();
+		temp = util::int2string(integer());
 	}
 	//＜字符＞
 	else if (symbles[iter].getType() == "CHAR")
 	{
-		_char();
+		temp = util::int2string((int)_char());
 	}
 	//‘(’＜表达式＞‘)’
 	else if (symbles[iter].getType() == "LPAREN")
 	{
 		iter++;
-		expression();
+		temp = expression();
 		if (symbles[iter].getType() == "RPAREN")
 		{
 			iter++;
@@ -1107,13 +1196,14 @@ bool SyntaxAnalyzer::factor()
 	}
 
 	printInfo("This is a <因子>");
-	return true;
+	return temp;
 
 }
 
 //＜有返回值函数调用语句＞ :: = ＜标识符＞‘(’＜值参数表＞‘)’
-bool SyntaxAnalyzer::returnFunctionCall()
+string SyntaxAnalyzer::returnFunctionCall()
 {
+	string temp;
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
 		iter++;
@@ -1144,7 +1234,7 @@ bool SyntaxAnalyzer::returnFunctionCall()
 	}
 
 	printInfo("This is a <有返回值函数调用>");
-	return true;
+	return temp;
 }
 
 //＜无返回值函数调用语句＞ ::= ＜标识符＞‘(’＜值参数表＞‘)’
@@ -1379,8 +1469,27 @@ bool SyntaxAnalyzer::doWhileStatement()
 //＜赋值语句＞   ::=  ＜标识符＞＝＜表达式＞|＜标识符＞‘[’＜表达式＞‘]’=＜表达式＞
 bool SyntaxAnalyzer::assignStatement()
 {
+	string temp;
+	string name;
+	string arg1;
+	string arg2;
+	TableItem tableItem;
+
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name = symbles[iter].getValue();
+		if (table.check(funcName, name))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name);
+		}
+		else if (table.check("globle", name))
+		{
+			tableItem = table.get("globle", name);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter - 1].getLineNumber());
+		}
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1389,10 +1498,21 @@ bool SyntaxAnalyzer::assignStatement()
 	}
 
 	//‘[’＜表达式＞‘]’
-	if (symbles[iter].getType() == "LBRACKET")
+	if (symbles[iter].getType() == "LBRACKET")	//array
 	{
+		if (tableItem.getKind() == "array")
+		{
+			temp = name;
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter - 1].getLineNumber());
+		}
+
 		iter++;
-		expression();
+		temp += '[';
+		temp += expression();
+		temp += ']';
 		if (symbles[iter].getType() == "RBRACKET")
 		{
 			iter++;
@@ -1400,6 +1520,18 @@ bool SyntaxAnalyzer::assignStatement()
 		else	//identifier not found, error
 		{
 			_error(8, symbles[iter].getLineNumber());
+		}
+	}
+	else	//not array
+	{
+		if (tableItem.getKind() == "variable" ||
+			tableItem.getKind() == "parameter")
+		{
+			temp = name;
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter - 1].getLineNumber());
 		}
 	}
 
@@ -1412,7 +1544,9 @@ bool SyntaxAnalyzer::assignStatement()
 		_error(6, symbles[iter].getLineNumber());
 	}
 
-	expression();
+	arg1 = temp;
+	arg2 = expression();
+	imCodeGenerator.genAssign(arg1, arg2);
 
 	printInfo("This is a <赋值语句>");
 	return true;
@@ -1596,6 +1730,8 @@ void Error::print()
 	//24 return 
 	//25 illegal statement
 	//26 identifier redeclaration
+	//27 undefined identifier
+	//28 identifier has a wrong kind
 
 	cout << "[line" << this->lineNumber << "]\t";
 	switch (this->type)
@@ -1677,6 +1813,12 @@ void Error::print()
 		break;
 	case 26:
 		cout << "identifier redeclaration\n";
+		break;
+	case 27:
+		cout << "undeclared identifier\n";
+		break;
+	case 28:
+		cout << "identifier has a wrong kind\n";
 		break;
 	default:
 		break;
