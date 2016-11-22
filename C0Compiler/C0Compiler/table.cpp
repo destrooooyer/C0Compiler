@@ -7,11 +7,12 @@ TableItem::TableItem(string name, string kind, string type)
 	this->name = name;
 	this->kind = kind;
 	this->type = type;
+	this->value = 0;
 }
 
 TableItem::TableItem()
 {
-
+	this->value = 0;
 }
 
 void TableItem::setValue(int value)

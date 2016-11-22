@@ -15,6 +15,21 @@ string TempNameManager::getTempName()
 	return temp;
 }
 
+LabelManager::LabelManager()
+{
+	count = 0;
+}
+
+string LabelManager::getLabel()
+{
+	string temp = "L";
+	count++;
+	temp += ('0' + count);
+	temp += ':';
+	return temp;
+}
+
+
 Quadruple::Quadruple(string op, string arg1, string arg2, string arg3)
 {
 	this->op = op;
@@ -46,6 +61,22 @@ void IMCodeGenerator::genAssign(string src, string dst)
 {
 	quadruples.push_back(Quadruple("=", src, dst, ""));
 }
+
+void IMCodeGenerator::genJz(string arg, string label)
+{
+	quadruples.push_back(Quadruple("jz", arg, label, ""));
+}
+
+void IMCodeGenerator::genJmp(string label)
+{
+	quadruples.push_back(Quadruple("jmp", label, "", ""));
+}
+
+void IMCodeGenerator::genLabel(string label)
+{
+	quadruples.push_back(Quadruple("label", label, "", ""));
+}
+
 
 vector<Quadruple> IMCodeGenerator::getQuadruples()
 {

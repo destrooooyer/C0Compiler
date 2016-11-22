@@ -39,7 +39,7 @@ public:
 	bool statementList();				//<语句列>
 	bool statement();					//<语句>
 	bool ifStatement();					//<条件语句>
-	bool condition();					//<条件>
+	std::string condition();					//<条件>
 	std::string expression();			//<表达式>
 	std::string term();					//<项>
 	std::string factor();				//<因子>
@@ -63,6 +63,7 @@ private:
 	std::vector <Symble> symbles;
 	IMCodeGenerator imCodeGenerator;
 	TempNameManager tmpNameManager;
+	LabelManager labelManager;
 	int iter;
 	std::vector<Error> syntaxErrors;
 	void printInfo(std::string str);

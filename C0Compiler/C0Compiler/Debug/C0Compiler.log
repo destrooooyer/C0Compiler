@@ -1,7 +1,10 @@
 ﻿  syntax_analyzer.cpp
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\syntax_analyzer.cpp(1830): warning C4018: '<': signed/unsigned mismatch
+c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\syntax_analyzer.cpp(1859): warning C4018: '<': signed/unsigned mismatch
   intermediate_code_generator.cpp
   Generating Code...
-  Skipping... (no relevant changes detected)
+  Compiling...
   main.cpp
+c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\main.cpp(32): warning C4018: '<': signed/unsigned mismatch
+c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\main.cpp(61): warning C4102: 'END': unreferenced label
+  Generating Code...
   C0Compiler.vcxproj -> C:\Users\DESTR\Documents\GitHub\C0Compiler\C0Compiler\Debug\C0Compiler.exe

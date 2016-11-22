@@ -25,6 +25,9 @@ public:
 	void genAssign(std::string src, std::string dst);
 	void genRet(std::string procName);
 	void gen4(std::string op, std::string arg1, std::string arg2, std::string arg3);
+	void genJz(std::string arg, std::string label);
+	void genJmp(std::string label);
+	void genLabel(std::string label);
 	std::vector<Quadruple> getQuadruples();
 
 private:
@@ -36,6 +39,15 @@ class TempNameManager
 public:
 	TempNameManager();
 	std::string getTempName();
+private:
+	int count;
+};
+
+class LabelManager
+{
+public:
+	LabelManager();
+	std::string getLabel();
 private:
 	int count;
 };

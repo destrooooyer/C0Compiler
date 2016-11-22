@@ -971,6 +971,12 @@ bool SyntaxAnalyzer::statement()
 //＜条件语句＞  ::=  if ‘(’＜条件＞‘)’＜语句＞［else＜语句＞］
 bool SyntaxAnalyzer::ifStatement()
 {
+	int flag = 0;	//whether there is an "else"
+	string label1;	//the label before "else", if the condition is false, jmp to label1 from the begin of this ifStatement
+	string label2;	//the label at the end of this ifStatement (if there is a "else"), jmp to label2 from the previous statement of "else" if the condition is true
+	string tempName;
+	label1 = labelManager.getLabel();
+
 	//if
 	if (symbles[iter].getType() == "PRESERVED_WORD_IF")
 		iter++;
@@ -987,7 +993,8 @@ bool SyntaxAnalyzer::ifStatement()
 		_error(2, symbles[iter].getLineNumber());
 	}
 
-	condition();
+	tempName = condition();
+	imCodeGenerator.genJz(tempName, label1);	//jz: condition==0 then jump to label1
 
 	//)
 	if (symbles[iter].getType() == "RPAREN")
@@ -1002,8 +1009,16 @@ bool SyntaxAnalyzer::ifStatement()
 	//［else＜语句＞］
 	if (symbles[iter].getType() == "PRESERVED_WORD_ELSE")
 	{
+		label2 = labelManager.getLabel();
+		imCodeGenerator.genJmp(label2);
+		imCodeGenerator.genLabel(label1);	//generate label1, if the condition is false, jump to here
 		iter++;
 		statement();
+		imCodeGenerator.genLabel(label2);	//generate label2, if the condition is true, jump to here from before "else" to skip those "else statements"
+	}
+	else	//there is no "else" after "if"
+	{
+		imCodeGenerator.genLabel(label1);	//generate label1, if the condition is false, jump to here
 	}
 
 
@@ -1012,9 +1027,15 @@ bool SyntaxAnalyzer::ifStatement()
 }
 
 //＜条件＞    ::=  ＜表达式＞＜关系运算符＞＜表达式＞｜＜表达式＞ //表达式为0条件为假，否则为真
-bool SyntaxAnalyzer::condition()
+string SyntaxAnalyzer::condition()
 {
-	expression();
+
+	string tempName;
+	string arg1;
+	string arg2;
+	string op;
+
+	arg1 = expression();
 	if (symbles[iter].getType() == "EQUAL" ||
 		symbles[iter].getType() == "UNEQUAL" ||
 		symbles[iter].getType() == "LESS" ||
@@ -1022,12 +1043,17 @@ bool SyntaxAnalyzer::condition()
 		symbles[iter].getType() == "GREATER" ||
 		symbles[iter].getType() == "GREATER_OR_EQUAL")
 	{
+		op = symbles[iter].getValue();
 		iter++;
-		expression();
+		arg2 = expression();
+		tempName = tmpNameManager.getTempName();
+		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
+		imCodeGenerator.gen4(op, arg1, arg2, tempName);
+		arg1 = tempName;
 	}
 
 	printInfo("This is a <条件>");
-	return true;
+	return arg1;
 }
 
 //＜表达式＞    ::= ［＋｜－］＜项＞{＜加法运算符＞＜项＞}
@@ -1050,6 +1076,7 @@ string SyntaxAnalyzer::expression()
 	if (flag == 1)
 	{
 		tempName = tmpNameManager.getTempName();
+		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
 		imCodeGenerator.gen4("-", "0", arg1, tempName);
 		arg1 = tempName;
 	}
@@ -1060,6 +1087,7 @@ string SyntaxAnalyzer::expression()
 		iter++;
 		arg2 = term();
 		tempName = tmpNameManager.getTempName();
+		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
 		imCodeGenerator.gen4(op, arg1, arg2, tempName);
 		arg1 = tempName;
 	}
@@ -1084,6 +1112,7 @@ string SyntaxAnalyzer::term()
 		iter++;
 		arg2 = factor();
 		tempName = tmpNameManager.getTempName();
+		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
 		imCodeGenerator.gen4(op, arg1, arg2, tempName);
 		arg1 = tempName;
 	}
