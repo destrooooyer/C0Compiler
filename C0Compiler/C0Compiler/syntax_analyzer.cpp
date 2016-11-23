@@ -1290,11 +1290,11 @@ string SyntaxAnalyzer::returnFunctionCall()
 		_error(2, symbles[iter].getLineNumber());
 	}
 
-	parameterList();
+	parameterList(tableItem.getValue());
 	if (flag == 1)
 	{
 		temp = tmpNameManager.getTempName();
-		table.put(funcName, temp, TableItem(temp, "temp", "int"));
+		table.put(funcName, temp, TableItem(temp, "temp", tableItem.getType()));
 		imCodeGenerator.genCall(name, temp);
 	}
 	else
@@ -1313,7 +1313,9 @@ string SyntaxAnalyzer::returnFunctionCall()
 	return temp;
 }
 
+//这个没有卵用啊
 //＜无返回值函数调用语句＞ ::= ＜标识符＞‘(’＜值参数表＞‘)’
+/*
 bool SyntaxAnalyzer::voidFunctionCall()
 {
 	if (symbles[iter].getType() == "IDENTIFIER")
@@ -1334,7 +1336,7 @@ bool SyntaxAnalyzer::voidFunctionCall()
 		_error(2, symbles[iter].getLineNumber());
 	}
 
-	parameterList();
+	parameterList(1);
 
 	if (symbles[iter].getType() == "RPAREN")
 	{
@@ -1348,20 +1350,37 @@ bool SyntaxAnalyzer::voidFunctionCall()
 	printInfo("This is a <无返回值函数调用>");
 	return true;
 }
+*/
+
 
 //＜值参数表＞   :: = ＜表达式＞{ ,＜表达式＞ }｜＜空＞
-bool SyntaxAnalyzer::parameterList()
+bool SyntaxAnalyzer::parameterList(int count)
 {
-	//空
+	int c = 0;	//parameter count
+	string temp;
+	//＜空＞
 	if (symbles[iter].getType() == "RPAREN");
 	else
 	{
-		expression();
+		temp = expression();
+		c++;
+		imCodeGenerator.genPushpara(temp);
 		while (symbles[iter].getType() == "COMMA")
 		{
 			iter++;
-			expression();
+			temp = expression();
+			c++;
+			imCodeGenerator.genPushpara(temp);
 		}
+	}
+
+	if (c < count)	//not enough parameters, error
+	{
+		_error(30, symbles[iter].getLineNumber());
+	}
+	else if (c>count)	//too many parameters, error
+	{
+		_error(29, symbles[iter].getLineNumber());
 	}
 
 	printInfo("This is a <值参数表>");
@@ -1748,6 +1767,7 @@ bool SyntaxAnalyzer::assignStatement()
 //＜写语句＞    ::=  printf‘(’＜字符串＞,＜表达式＞‘)’|printf ‘(’＜字符串＞‘)’|printf ‘(’＜表达式＞‘)’
 bool SyntaxAnalyzer::printfStatement()
 {
+	string temp;
 	if (symbles[iter].getType() == "PRESERVED_WORD_PRINTF")
 	{
 		iter++;
@@ -1768,16 +1788,19 @@ bool SyntaxAnalyzer::printfStatement()
 
 	if (symbles[iter].getType() == "STRING")
 	{
+		imCodeGenerator.genPrintStr(symbles[iter].getValue());
 		iter++;
 		if (symbles[iter].getType() == "COMMA")
 		{
 			iter++;
-			expression();
+			temp = expression();
+			imCodeGenerator.genPrintf(temp);
 		}
 	}
 	else
 	{
-		expression();
+		temp = expression();
+		imCodeGenerator.genPrintf(temp);
 	}
 
 	if (symbles[iter].getType() == "RPAREN")
@@ -1796,6 +1819,9 @@ bool SyntaxAnalyzer::printfStatement()
 //＜读语句＞    :: = scanf ‘(’＜标识符＞{ ,＜标识符＞ }‘)’
 bool SyntaxAnalyzer::scanfStatement()
 {
+	string name;
+	TableItem tableItem;
+
 	if (symbles[iter].getType() == "PRESERVED_WORD_SCANF")
 	{
 		iter++;
@@ -1816,6 +1842,29 @@ bool SyntaxAnalyzer::scanfStatement()
 
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name = symbles[iter].getValue();
+		if (table.check(funcName, name))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name);
+		}
+		else if (table.check("globle", name))
+		{
+			tableItem = table.get("globle", name);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter].getLineNumber());
+		}
+		if (tableItem.getKind() == "variable" ||
+			tableItem.getKind() == "parameter")
+		{
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter].getLineNumber());
+		}
+		imCodeGenerator.genScanf(name);
+
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1828,6 +1877,29 @@ bool SyntaxAnalyzer::scanfStatement()
 		iter++;
 		if (symbles[iter].getType() == "IDENTIFIER")
 		{
+			name = symbles[iter].getValue();
+			if (table.check(funcName, name))	//id is in table[function]
+			{
+				tableItem = table.get(funcName, name);
+			}
+			else if (table.check("globle", name))
+			{
+				tableItem = table.get("globle", name);
+			}
+			else	//identifier not found, error
+			{
+				_error(27, symbles[iter].getLineNumber());
+			}
+			if (tableItem.getKind() == "variable" ||
+				tableItem.getKind() == "parameter")
+			{
+			}
+			else	//identifier has a wrong kind, error
+			{
+				_error(28, symbles[iter].getLineNumber());
+			}
+			imCodeGenerator.genScanf(name);
+
 			iter++;
 		}
 		else	//identifier not found, error
@@ -1927,6 +1999,8 @@ void Error::print()
 	//26 identifier redeclaration
 	//27 undefined identifier
 	//28 identifier has a wrong kind
+	//29 too many parameters
+	//30 not enough parameters
 
 	cout << "[line" << this->lineNumber << "]\t";
 	switch (this->type)
@@ -2014,6 +2088,12 @@ void Error::print()
 		break;
 	case 28:
 		cout << "identifier has a wrong kind\n";
+		break;
+	case 29:
+		cout << "too many parameters\n";
+		break;
+	case 30:
+		cout << "not enough parameters\n";
 		break;
 	default:
 		break;

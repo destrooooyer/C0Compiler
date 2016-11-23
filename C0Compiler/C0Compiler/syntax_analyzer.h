@@ -39,13 +39,13 @@ public:
 	bool statementList();				//<语句列>
 	bool statement();					//<语句>
 	bool ifStatement();					//<条件语句>
-	std::string condition();					//<条件>
+	std::string condition();			//<条件>
 	std::string expression();			//<表达式>
 	std::string term();					//<项>
 	std::string factor();				//<因子>
 	std::string returnFunctionCall();	//<有返回值函数调用语句>
 	bool voidFunctionCall();			//<无返回值函数调用语句>
-	bool parameterList();				//<值参数表>
+	bool parameterList(int count);		//<值参数表>
 	bool forStatement();				//<for循环语句>
 	bool doWhileStatement();			//<do while循环语句>
 	bool assignStatement();				//<赋值语句>

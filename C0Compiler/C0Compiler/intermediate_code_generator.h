@@ -32,6 +32,10 @@ public:
 	void genReturn(std::string arg);
 	void genCall(std::string funName,std::string dst);
 	void genVoidCall(std::string funName);
+	void genPushpara(std::string arg);
+	void genScanf(std::string arg);
+	void genPrintf(std::string arg);
+	void genPrintStr(std::string str);
 	std::vector<Quadruple> getQuadruples();
 
 private:
