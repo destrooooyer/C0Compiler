@@ -5,12 +5,12 @@
 #include <string>
 #include <map>
 
-class Symble
+class Symbol
 {
 public:
-	Symble();
-	Symble(std::string type);
-	Symble(std::string type, std::string value,int lineNumber);
+	Symbol();
+	Symbol(std::string type);
+	Symbol(std::string type, std::string value,int lineNumber);
 	std::string getValue();
 	std::string getType();
 	int getLineNumber();
@@ -27,7 +27,7 @@ class LexAnalyzer
 public:
 	LexAnalyzer(std::string soucrFile);
 	bool isSourceOpen();
-	Symble getNextSymble();
+	Symbol getNextSymble();
 	bool infoSwitch;
 
 private:
@@ -35,7 +35,7 @@ private:
 	char chr;
 	std::ifstream fin;
 	std::map <std::string, std::string> preservedWordsTable;
-	void printInfo(Symble sym);
+	void printInfo(Symbol sym);
 };
 
 #endif

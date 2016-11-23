@@ -7,9 +7,9 @@
 
 using namespace std;
 
-vector<Symble> LexicalAnalyse(string file)
+vector<Symbol> LexicalAnalyse(string file)
 {
-	vector<Symble>symbles;
+	vector<Symbol>symbles;
 	LexAnalyzer lex(file);
 	lex.infoSwitch = true;
 	if (lex.isSourceOpen() == false)
@@ -17,7 +17,7 @@ vector<Symble> LexicalAnalyse(string file)
 		cout << "打开文件失败\n";
 		return symbles;
 	}
-	Symble temp = lex.getNextSymble();
+	Symbol temp = lex.getNextSymble();
 	while (temp.getType() != "EOF")
 	{
 		symbles.push_back(temp);
@@ -39,11 +39,12 @@ int main()
 	cout << "输入源文件的文件名:\t";
 	//cin >> sourceFile;
 	//sourceFile = "D:/documents/学校相关/编译/语法分析/14061120_刘润泽_语法分析/14061120_test.txt";
-	sourceFile = "D:\\documents\\学校相关\\编译\\代码生成\\test.txt";
+	//sourceFile = "D:\\documents\\学校相关\\编译\\代码生成\\test.txt";
+	sourceFile = "C:\\Users\\DESTRooooYER\\Desktop\\Vsiaul Assist X\\a.txt";
 	cout << sourceFile;
 
 
-	vector<Symble> symbles = LexicalAnalyse(sourceFile);
+	vector<Symbol> symbles = LexicalAnalyse(sourceFile);
 	Table table;
 	vector<Quadruple> intermediateCodes;
 	SyntaxAnalyzer syntax(symbles);

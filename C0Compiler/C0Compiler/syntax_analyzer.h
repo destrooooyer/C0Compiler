@@ -22,7 +22,7 @@ private:
 class SyntaxAnalyzer
 {
 public:
-	SyntaxAnalyzer(std::vector<Symble> symbles);
+	SyntaxAnalyzer(std::vector<Symbol> symbles);
 	bool program();						//＜程序＞ 
 	bool constExplanation();			//＜常量说明＞
 	bool varExplanation();				//＜变量说明＞
@@ -60,7 +60,7 @@ public:
 	void printErrors();
 
 private:
-	std::vector <Symble> symbles;
+	std::vector <Symbol> symbles;
 	IMCodeGenerator imCodeGenerator;
 	TempNameManager tmpNameManager;
 	LabelManager labelManager;

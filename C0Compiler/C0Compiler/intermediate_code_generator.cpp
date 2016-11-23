@@ -88,6 +88,16 @@ void IMCodeGenerator::genReturn(string arg)
 	quadruples.push_back(Quadruple("return", arg, "", ""));
 }
 
+void IMCodeGenerator::genCall(string funcName, string dst)
+{
+	quadruples.push_back(Quadruple("call", funcName, dst, ""));
+}
+
+void IMCodeGenerator::genVoidCall(string funcName)
+{
+	quadruples.push_back(Quadruple("callvoid", funcName, "", ""));
+}
+
 
 
 

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-SyntaxAnalyzer::SyntaxAnalyzer(vector<Symble> symbles)
+SyntaxAnalyzer::SyntaxAnalyzer(vector<Symbol> symbles)
 {
 	this->symbles = symbles;
 	this->iter = 0;
@@ -1174,6 +1174,21 @@ string SyntaxAnalyzer::factor()
 		}
 		else if (symbles[iter].getType() == "LPAREN")	//＜有返回值函数调用语句＞
 		{
+			if (table.check("globle", name))
+			{
+				tableItem = table.get("globle", name);
+				if (tableItem.getKind() == "return_function")
+				{
+				}
+				else	//identifier has a wrong kind, error
+				{
+					_error(28, symbles[iter - 1].getLineNumber());
+				}
+			}
+			else	//identifier has a wrong kind, error
+			{
+				_error(28, symbles[iter - 1].getLineNumber());
+			}
 			iter--;
 			temp = returnFunctionCall();
 		}
@@ -1232,9 +1247,33 @@ string SyntaxAnalyzer::factor()
 //＜有返回值函数调用语句＞ :: = ＜标识符＞‘(’＜值参数表＞‘)’
 string SyntaxAnalyzer::returnFunctionCall()
 {
-	string temp;
+	int flag = 0;
+	string temp = "";
+	string name;
+	TableItem tableItem;
+
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name = symbles[iter].getValue();
+		if (table.check("globle", name))
+		{
+			tableItem = table.get("globle", name);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter].getLineNumber());
+		}
+
+		if (tableItem.getKind() == "return_function" ||
+			tableItem.getKind() == "void_function")
+		{
+			if (tableItem.getKind() == "return_function")
+				flag = 1;
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter].getLineNumber());
+		}
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1252,6 +1291,14 @@ string SyntaxAnalyzer::returnFunctionCall()
 	}
 
 	parameterList();
+	if (flag == 1)
+	{
+		temp = tmpNameManager.getTempName();
+		table.put(funcName, temp, TableItem(temp, "temp", "int"));
+		imCodeGenerator.genCall(name, temp);
+	}
+	else
+		imCodeGenerator.genVoidCall(name);
 
 	if (symbles[iter].getType() == "RPAREN")
 	{

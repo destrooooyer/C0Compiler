@@ -35,7 +35,7 @@ bool LexAnalyzer::isSourceOpen()
 	return fin.is_open();
 }
 
-void LexAnalyzer::printInfo(Symble sym)
+void LexAnalyzer::printInfo(Symbol sym)
 {
 	int n = 0, m = lineCount;
 	while (m != 0)
@@ -47,13 +47,13 @@ void LexAnalyzer::printInfo(Symble sym)
 		cout << "line[" << lineCount << "]" << setw(11 - n) << "type: " << sym.getType() << setw(30 - sym.getType().length()) << "value: " << sym.getValue() << "\n";
 }
 
-Symble LexAnalyzer::getNextSymble()
+Symbol LexAnalyzer::getNextSymble()
 {
 	//check eof first
-	if (fin.peek() == EOF)
+	if (fin.eof())
 	{
 		chr = -1;
-		Symble sym("EOF");
+		Symbol sym("EOF");
 		return sym;
 	}
 
@@ -66,7 +66,7 @@ Symble LexAnalyzer::getNextSymble()
 		if (fin.peek() == EOF)
 		{
 			chr = -1;
-			Symble sym("EOF");
+			Symbol sym("EOF");
 			return sym;
 		}
 		else
@@ -93,13 +93,13 @@ Symble LexAnalyzer::getNextSymble()
 		//check whether it is a preserved word
 		if (preservedWordsTable.count(valueTmp) == 1)	//a preserved word
 		{
-			Symble sym(preservedWordsTable[valueTmp], valueTmp, lineCount);
+			Symbol sym(preservedWordsTable[valueTmp], valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else	//an identifier
 		{
-			Symble sym("IDENTIFIER", valueTmp, lineCount);
+			Symbol sym("IDENTIFIER", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -121,7 +121,7 @@ Symble LexAnalyzer::getNextSymble()
 				fin.get(chr);
 		}
 
-		Symble sym("UNSIGNEDINT", valueTmp, lineCount);
+		Symbol sym("UNSIGNEDINT", valueTmp, lineCount);
 		printInfo(sym);
 		return sym;
 	}
@@ -147,13 +147,13 @@ Symble LexAnalyzer::getNextSymble()
 		{
 			valueTmp += chr;
 			fin.get(chr);
-			Symble sym("STRING", valueTmp, lineCount);
+			Symbol sym("STRING", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("UNKNOWN", valueTmp, lineCount);
+			Symbol sym("UNKNOWN", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -173,7 +173,7 @@ Symble LexAnalyzer::getNextSymble()
 		}
 		else
 		{
-			Symble sym("UNKNOWN", valueTmp, lineCount);
+			Symbol sym("UNKNOWN", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -182,13 +182,13 @@ Symble LexAnalyzer::getNextSymble()
 		{
 			valueTmp += chr;
 			fin.get(chr);
-			Symble sym("CHAR", valueTmp, lineCount);
+			Symbol sym("CHAR", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("UNKNOWN", valueTmp, lineCount);
+			Symbol sym("UNKNOWN", valueTmp, lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -197,70 +197,70 @@ Symble LexAnalyzer::getNextSymble()
 	else if (chr == '+')
 	{
 		fin.get(chr);
-		Symble sym("PLUS", "+", lineCount);
+		Symbol sym("PLUS", "+", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '-')
 	{
 		fin.get(chr);
-		Symble sym("MINUS", "-", lineCount);
+		Symbol sym("MINUS", "-", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '*')
 	{
 		fin.get(chr);
-		Symble sym("TIMES", "*", lineCount);
+		Symbol sym("TIMES", "*", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '/')
 	{
 		fin.get(chr);
-		Symble sym("SLASH", "/", lineCount);
+		Symbol sym("SLASH", "/", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '(')
 	{
 		fin.get(chr);
-		Symble sym("LPAREN", "(", lineCount);
+		Symbol sym("LPAREN", "(", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == ')')
 	{
 		fin.get(chr);
-		Symble sym("RPAREN", ")", lineCount);
+		Symbol sym("RPAREN", ")", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '{')
 	{
 		fin.get(chr);
-		Symble sym("LBRACE", "{", lineCount);
+		Symbol sym("LBRACE", "{", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '}')
 	{
 		fin.get(chr);
-		Symble sym("RBRACE", "}", lineCount);
+		Symbol sym("RBRACE", "}", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == '[')
 	{
 		fin.get(chr);
-		Symble sym("LBRACKET", "[", lineCount);
+		Symbol sym("LBRACKET", "[", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == ']')
 	{
 		fin.get(chr);
-		Symble sym("RBRACKET", "]", lineCount);
+		Symbol sym("RBRACKET", "]", lineCount);
 		printInfo(sym);
 		return sym;
 	}
@@ -271,13 +271,13 @@ Symble LexAnalyzer::getNextSymble()
 		if (chr == '=')
 		{
 			fin.get(chr);
-			Symble sym("EQUAL", "==", lineCount);
+			Symbol sym("EQUAL", "==", lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("ASSIGN", "=", lineCount);
+			Symbol sym("ASSIGN", "=", lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -285,14 +285,14 @@ Symble LexAnalyzer::getNextSymble()
 	else if (chr == ',')
 	{
 		fin.get(chr);
-		Symble sym("COMMA", ",", lineCount);
+		Symbol sym("COMMA", ",", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else if (chr == ';')
 	{
 		fin.get(chr);
-		Symble sym("SEMICOLON", ";", lineCount);
+		Symbol sym("SEMICOLON", ";", lineCount);
 		printInfo(sym);
 		return sym;
 	}
@@ -303,13 +303,13 @@ Symble LexAnalyzer::getNextSymble()
 		if (chr == '=')
 		{
 			fin.get(chr);
-			Symble sym("LESS_OR_EQUAL", "<=", lineCount);
+			Symbol sym("LESS_OR_EQUAL", "<=", lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("LESS", "<", lineCount);
+			Symbol sym("LESS", "<", lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -321,13 +321,13 @@ Symble LexAnalyzer::getNextSymble()
 		if (chr == '=')
 		{
 			fin.get(chr);
-			Symble sym("GREATER_OR_EQUAL", ">=", lineCount);
+			Symbol sym("GREATER_OR_EQUAL", ">=", lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("GREATER", ">", lineCount);
+			Symbol sym("GREATER", ">", lineCount);
 			printInfo(sym);
 			return sym;
 		}
@@ -338,13 +338,13 @@ Symble LexAnalyzer::getNextSymble()
 		if (chr == '=')
 		{
 			fin.get(chr);
-			Symble sym("UNEQUAL", "!=", lineCount);
+			Symbol sym("UNEQUAL", "!=", lineCount);
 			printInfo(sym);
 			return sym;
 		}
 		else
 		{
-			Symble sym("UNKNOWN", "!" + chr, lineCount);
+			Symbol sym("UNKNOWN", "!" + chr, lineCount);
 			fin.get(chr);
 			printInfo(sym);
 			return sym;
@@ -353,13 +353,13 @@ Symble LexAnalyzer::getNextSymble()
 	else if (chr == '0')
 	{
 		fin.get(chr);
-		Symble sym("ZERO", "0", lineCount);
+		Symbol sym("ZERO", "0", lineCount);
 		printInfo(sym);
 		return sym;
 	}
 	else
 	{
-		Symble sym("UNKNOWN", "" + chr, lineCount);
+		Symbol sym("UNKNOWN", "" + chr, lineCount);
 		fin.get(chr);
 		printInfo(sym);
 		return sym;
@@ -367,33 +367,33 @@ Symble LexAnalyzer::getNextSymble()
 
 }
 
-Symble::Symble()
+Symbol::Symbol()
 {
 }
 
-Symble::Symble(string type)
+Symbol::Symbol(string type)
 {
 	this->type = type;
 }
 
-Symble::Symble(string type, string value, int lineNumber)
+Symbol::Symbol(string type, string value, int lineNumber)
 {
 	this->type = type;
 	this->value = value;
 	this->lineNumber = lineNumber;
 }
 
-string Symble::getType()
+string Symbol::getType()
 {
 	return this->type;
 }
 
-string Symble::getValue()
+string Symbol::getValue()
 {
 	return this->value;
 }
 
-int Symble::getLineNumber()
+int Symbol::getLineNumber()
 {
 	return this->lineNumber;
 }

@@ -30,6 +30,8 @@ public:
 	void genJmp(std::string label);
 	void genLabel(std::string label);
 	void genReturn(std::string arg);
+	void genCall(std::string funName,std::string dst);
+	void genVoidCall(std::string funName);
 	std::vector<Quadruple> getQuadruples();
 
 private:
