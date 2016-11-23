@@ -23,11 +23,13 @@ public:
 
 	void genProc(std::string procName);
 	void genAssign(std::string src, std::string dst);
-	void genRet(std::string procName);
+	void genEndp(std::string procName);
 	void gen4(std::string op, std::string arg1, std::string arg2, std::string arg3);
 	void genJz(std::string arg, std::string label);
+	void genJnz(std::string arg, std::string label);
 	void genJmp(std::string label);
 	void genLabel(std::string label);
+	void genReturn(std::string arg);
 	std::vector<Quadruple> getQuadruples();
 
 private:

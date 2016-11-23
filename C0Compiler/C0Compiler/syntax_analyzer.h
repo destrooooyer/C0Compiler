@@ -66,11 +66,11 @@ private:
 	LabelManager labelManager;
 	int iter;
 	std::vector<Error> syntaxErrors;
-	void printInfo(std::string str);
-	void _error(int errorType, int lineNumber);
 	Table table;
 	std::string funcName;
 
+	void printInfo(std::string str);
+	void _error(int errorType, int lineNumber);
 };
 
 

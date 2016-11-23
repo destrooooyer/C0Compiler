@@ -1,4 +1,5 @@
 #include "intermediate_code_generator.h"
+#include "util.h"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ string TempNameManager::getTempName()
 {
 	string temp = "temp";
 	count++;
-	temp += ('0' + count);
+	temp += util::int2string(count);
 	return temp;
 }
 
@@ -24,7 +25,7 @@ string LabelManager::getLabel()
 {
 	string temp = "L";
 	count++;
-	temp += ('0' + count);
+	temp += util::int2string(count);
 	temp += ':';
 	return temp;
 }
@@ -47,9 +48,9 @@ void IMCodeGenerator::genProc(string procName)
 	quadruples.push_back(Quadruple("proc", procName, "", ""));
 }
 
-void IMCodeGenerator::genRet(string procName)
+void IMCodeGenerator::genEndp(string procName)
 {
-	quadruples.push_back(Quadruple("ret", procName, "", ""));
+	quadruples.push_back(Quadruple("endp", procName, "", ""));
 }
 
 void IMCodeGenerator::gen4(std::string op, string arg1, string arg2, string arg3)
@@ -67,6 +68,11 @@ void IMCodeGenerator::genJz(string arg, string label)
 	quadruples.push_back(Quadruple("jz", arg, label, ""));
 }
 
+void IMCodeGenerator::genJnz(string arg, string label)
+{
+	quadruples.push_back(Quadruple("jnz", arg, label, ""));
+}
+
 void IMCodeGenerator::genJmp(string label)
 {
 	quadruples.push_back(Quadruple("jmp", label, "", ""));
@@ -76,6 +82,13 @@ void IMCodeGenerator::genLabel(string label)
 {
 	quadruples.push_back(Quadruple("label", label, "", ""));
 }
+
+void IMCodeGenerator::genReturn(string arg)
+{
+	quadruples.push_back(Quadruple("return", arg, "", ""));
+}
+
+
 
 
 vector<Quadruple> IMCodeGenerator::getQuadruples()

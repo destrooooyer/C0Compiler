@@ -579,7 +579,7 @@ bool SyntaxAnalyzer::returnFunctionDeclaration()
 
 						imCodeGenerator.genProc(name);
 						compondStatement();
-						imCodeGenerator.genRet(name);
+						imCodeGenerator.genEndp(name);
 
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
@@ -656,7 +656,7 @@ bool SyntaxAnalyzer::voidFunctionDeclaration()
 
 						imCodeGenerator.genProc(name);
 						compondStatement();
-						imCodeGenerator.genRet(name);
+						imCodeGenerator.genEndp(name);
 
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
@@ -730,7 +730,7 @@ bool SyntaxAnalyzer::mainFunction()
 
 						imCodeGenerator.genProc(name);
 						compondStatement();
-						imCodeGenerator.genRet(name);
+						imCodeGenerator.genEndp(name);
 
 						if (symbles[iter].getType() == "RBRACE")	//}
 						{
@@ -1144,7 +1144,7 @@ string SyntaxAnalyzer::factor()
 		}
 		else	//identifier not found, error
 		{
-			_error(27, symbles[iter - 1].getLineNumber());
+			_error(27, symbles[iter].getLineNumber());
 		}
 
 		iter++;
@@ -1172,7 +1172,7 @@ string SyntaxAnalyzer::factor()
 				_error(8, symbles[iter].getLineNumber());
 			}
 		}
-		if (symbles[iter].getType() == "LPAREN")	//＜有返回值函数调用语句＞
+		else if (symbles[iter].getType() == "LPAREN")	//＜有返回值函数调用语句＞
 		{
 			iter--;
 			temp = returnFunctionCall();
@@ -1324,6 +1324,29 @@ bool SyntaxAnalyzer::parameterList()
 //for‘(’＜标识符＞＝＜表达式＞;＜条件＞;＜标识符＞＝＜标识符＞(+|-)＜步长＞‘)’＜语句＞
 bool SyntaxAnalyzer::forStatement()
 {
+	//the structure is like this:
+	/*
+		i=0;
+		L2
+		jz condition L1
+		{statements}
+		i++;
+		jmp L2;
+		L1
+	*/
+	string label1;
+	string label2;
+	string tempName;
+	string name;			//i
+	TableItem tableItem;	//i
+	string name2;			//for(;;j=k+1) j
+	string name3;			//for(;;j=k+1) k
+	string op;				//for(;;j=k+1) +
+	string step;			//for(;;j=k+1) 1
+
+	label1 = labelManager.getLabel();
+	label2 = labelManager.getLabel();
+
 	if (symbles[iter].getType() == "PRESERVED_WORD_FOR")
 	{
 		iter++;
@@ -1344,6 +1367,29 @@ bool SyntaxAnalyzer::forStatement()
 
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name = symbles[iter].getValue();
+		if (table.check(funcName, name))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name);
+		}
+		else if (table.check("globle", name))
+		{
+			tableItem = table.get("globle", name);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter].getLineNumber());
+		}
+
+		if (tableItem.getKind() == "variable" ||
+			tableItem.getKind() == "parameter")
+		{
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter].getLineNumber());
+		}
+
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1360,7 +1406,9 @@ bool SyntaxAnalyzer::forStatement()
 		_error(6, symbles[iter].getLineNumber());
 	}
 
-	expression();
+	tempName = expression();
+	imCodeGenerator.genAssign(tempName, name);
+	imCodeGenerator.genLabel(label2);
 
 	if (symbles[iter].getType() == "SEMICOLON")
 	{
@@ -1371,7 +1419,8 @@ bool SyntaxAnalyzer::forStatement()
 		_error(4, symbles[iter].getLineNumber());
 	}
 
-	condition();
+	tempName = condition();
+	imCodeGenerator.genJz(tempName, label1);
 
 	if (symbles[iter].getType() == "SEMICOLON")
 	{
@@ -1384,6 +1433,29 @@ bool SyntaxAnalyzer::forStatement()
 
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name2 = symbles[iter].getValue();
+		if (table.check(funcName, name2))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name2);
+		}
+		else if (table.check("globle", name2))
+		{
+			tableItem = table.get("globle", name2);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter].getLineNumber());
+		}
+
+		if (tableItem.getKind() == "variable" ||
+			tableItem.getKind() == "parameter")
+		{
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter].getLineNumber());
+		}
+
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1402,6 +1474,29 @@ bool SyntaxAnalyzer::forStatement()
 
 	if (symbles[iter].getType() == "IDENTIFIER")
 	{
+		name3 = symbles[iter].getValue();
+		if (table.check(funcName, name3))	//id is in table[function]
+		{
+			tableItem = table.get(funcName, name3);
+		}
+		else if (table.check("globle", name3))
+		{
+			tableItem = table.get("globle", name3);
+		}
+		else	//identifier not found, error
+		{
+			_error(27, symbles[iter].getLineNumber());
+		}
+
+		if (tableItem.getKind() == "variable" ||
+			tableItem.getKind() == "parameter")
+		{
+		}
+		else	//identifier has a wrong kind, error
+		{
+			_error(28, symbles[iter].getLineNumber());
+		}
+
 		iter++;
 	}
 	else	//identifier not found, error
@@ -1411,10 +1506,12 @@ bool SyntaxAnalyzer::forStatement()
 
 	if (symbles[iter].getType() == "PLUS")
 	{
+		op = "+";
 		iter++;
 	}
 	else if (symbles[iter].getType() == "MINUS")
 	{
+		op = "-";
 		iter++;
 	}
 	else	//+,- not found, error
@@ -1424,6 +1521,7 @@ bool SyntaxAnalyzer::forStatement()
 
 	if (symbles[iter].getType() == "UNSIGNEDINT")
 	{
+		step = symbles[iter].getValue();
 		iter++;
 	}
 	else	//unsigned int not found, error
@@ -1442,6 +1540,10 @@ bool SyntaxAnalyzer::forStatement()
 
 	statement();
 
+	imCodeGenerator.gen4(op, name3, step, name2);
+	imCodeGenerator.genJmp(label2);
+	imCodeGenerator.genLabel(label1);
+
 	printInfo("This is a <for循环语句>");
 	return true;
 
@@ -1450,6 +1552,19 @@ bool SyntaxAnalyzer::forStatement()
 //do＜语句＞while ‘(’＜条件＞‘)’
 bool SyntaxAnalyzer::doWhileStatement()
 {
+	//the structure is like this:
+	/*
+	L1
+	{statements}
+	jnz condition L1
+	*/
+
+	string label;
+	string tempName;
+
+	label = labelManager.getLabel();
+	imCodeGenerator.genLabel(label);
+
 	if (symbles[iter].getType() == "PRESERVED_WORD_DO")
 	{
 		iter++;
@@ -1479,7 +1594,9 @@ bool SyntaxAnalyzer::doWhileStatement()
 		_error(2, symbles[iter].getLineNumber());
 	}
 
-	condition();
+	tempName = condition();
+	imCodeGenerator.genJnz(tempName, label);
+
 
 	if (symbles[iter].getType() == "RPAREN")
 	{
@@ -1517,7 +1634,7 @@ bool SyntaxAnalyzer::assignStatement()
 		}
 		else	//identifier not found, error
 		{
-			_error(27, symbles[iter - 1].getLineNumber());
+			_error(27, symbles[iter].getLineNumber());
 		}
 		iter++;
 	}
@@ -1688,6 +1805,7 @@ bool SyntaxAnalyzer::scanfStatement()
 //＜返回语句＞   ::=  return[‘(’＜表达式＞‘)’]
 bool SyntaxAnalyzer::returnStatement()
 {
+	string temp;
 	if (symbles[iter].getType() == "PRESERVED_WORD_RETURN")
 	{
 		iter++;
@@ -1700,7 +1818,8 @@ bool SyntaxAnalyzer::returnStatement()
 	if (symbles[iter].getType() == "LPAREN")
 	{
 		iter++;
-		expression();
+		temp = expression();
+		imCodeGenerator.genReturn(temp);
 
 		if (symbles[iter].getType() == "RPAREN")
 		{
