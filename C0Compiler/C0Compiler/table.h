@@ -34,6 +34,7 @@ public:
 	bool check(std::string functionName, std::string name);
 	void newTable(std::string funcName);
 	void print();
+	std::map<std::string, TableItem> getTable(std::string funcName);
 
 private:
 	//tables: 

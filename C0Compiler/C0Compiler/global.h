@@ -5,6 +5,7 @@
 #include "syntax_analyzer.h"
 #include "table.h"
 #include "intermediate_code_generator.h"
+#include "asm_generator.h"
 
 #include <fstream>
 #include <string>

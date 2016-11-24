@@ -561,6 +561,7 @@ bool SyntaxAnalyzer::returnFunctionDeclaration()
 		{
 			funcName = symbles[iter].getValue();
 			name = funcName;
+			table.newTable(name);
 			iter++;
 			//‘(’＜参数＞‘)’
 			if (symbles[iter].getType() == "LPAREN")		//(
@@ -638,6 +639,7 @@ bool SyntaxAnalyzer::voidFunctionDeclaration()
 		{
 			funcName = symbles[iter].getValue();
 			name = funcName;
+			table.newTable(name);
 			iter++;
 			//‘(’＜参数＞‘)’
 			if (symbles[iter].getType() == "LPAREN")		//(
@@ -713,6 +715,7 @@ bool SyntaxAnalyzer::mainFunction()
 		if (symbles[iter].getType() == "PRESERVED_WORD_MAIN")
 		{
 			funcName = symbles[iter].getValue();
+			table.newTable(name);
 			iter++;
 			//‘(’‘)’
 			if (symbles[iter].getType() == "LPAREN")		//(

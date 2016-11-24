@@ -91,3 +91,9 @@ void Table::print()
 		}
 	}
 }
+
+std::map<std::string, TableItem> Table::getTable(string funcName)
+{
+	if (tables.count(funcName))
+		return tables[funcName];
+}
