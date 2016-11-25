@@ -84,7 +84,7 @@ void Table::print()
 	for (map<string, map<string, TableItem> >::iterator iter = tables.begin(); iter != tables.end(); iter++)
 	{
 		cout << "///////////////////////////////////////////\n";
-		cout << iter->first<<endl;
+		cout << iter->first << endl;
 		for (map<string, TableItem>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
 		{
 			cout << iter2->second.getName() << " " << iter2->second.getKind() << " " << iter2->second.getType() << " " << iter2->second.getValue() << endl;
@@ -92,8 +92,18 @@ void Table::print()
 	}
 }
 
-std::map<std::string, TableItem> Table::getTable(string funcName)
+map<string, TableItem> Table::getTable(string funcName)
 {
 	if (tables.count(funcName))
 		return tables[funcName];
+}
+
+vector<string> Table::getKeys()
+{
+	vector<string> temp;
+	for (map<string, map<string, TableItem> >::iterator iter = tables.begin(); iter != tables.end(); iter++)
+	{
+		temp.push_back(iter->first);
+	}
+	return temp;
 }

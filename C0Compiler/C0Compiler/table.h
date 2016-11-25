@@ -35,6 +35,7 @@ public:
 	void newTable(std::string funcName);
 	void print();
 	std::map<std::string, TableItem> getTable(std::string funcName);
+	std::vector<std::string> getKeys();
 
 private:
 	//tables: 

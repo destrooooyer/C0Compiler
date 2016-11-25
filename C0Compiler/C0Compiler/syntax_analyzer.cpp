@@ -788,6 +788,7 @@ int SyntaxAnalyzer::parameter()
 		symbles[iter].getType() == "PRESERVED_WORD_CHAR")
 	{
 		paraCount++;
+		value++;
 		type = typeIdentifier();
 		if (symbles[iter].getType() == "IDENTIFIER")
 		{
@@ -800,6 +801,7 @@ int SyntaxAnalyzer::parameter()
 			{
 				iter++;
 				paraCount++;
+				value++;
 				type = typeIdentifier();
 				if (symbles[iter].getType() == "IDENTIFIER")
 				{
