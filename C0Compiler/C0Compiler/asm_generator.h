@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+
 #include "table.h"
 #include "intermediate_code_generator.h"
 
@@ -30,16 +31,21 @@ private:
 
 class regDescriptor
 {
+public:
+	bool isAvailable(std::string);
+	std::pair<std::string, std::string> getRegContent(std::string);
 
+private:
+	std::map<std::string, bool> regAvailability;
+	std::map<std::string, std::pair < std::string, std::string > > regContent;
 };
 
 class addrDescriptor
 {
 public:
-	std::string getAddr(std::string var)
-	{
-
-	}
+	std::string getAddr(std::string var);
+	bool isInReg(std::string funcName, std::string name);
+	std::string getReg(std::string funcName, std::string name);
 private:
 };
 
