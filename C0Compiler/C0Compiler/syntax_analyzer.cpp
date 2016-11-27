@@ -1091,10 +1091,23 @@ string SyntaxAnalyzer::expression()
 		op = symbles[iter].getValue();
 		iter++;
 		arg2 = term();
-		tempName = tmpNameManager.getTempName();
-		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
-		imCodeGenerator.gen4(op, arg1, arg2, tempName);
-		arg1 = tempName;
+
+		if (arg1[0] == '@')
+		{
+			imCodeGenerator.gen4(op, arg1, arg2, arg1);
+		}
+		else if (arg2[0] == '@')
+		{
+			imCodeGenerator.gen4(op, arg1, arg2, arg2);
+			arg1 = arg2;
+		}
+		else
+		{
+			tempName = tmpNameManager.getTempName();
+			table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
+			imCodeGenerator.gen4(op, arg1, arg2, tempName);
+			arg1 = tempName;
+		}
 	}
 
 	printInfo("This is a <表达式>");
@@ -1116,10 +1129,23 @@ string SyntaxAnalyzer::term()
 		op = symbles[iter].getValue();
 		iter++;
 		arg2 = factor();
-		tempName = tmpNameManager.getTempName();
-		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
-		imCodeGenerator.gen4(op, arg1, arg2, tempName);
-		arg1 = tempName;
+
+		if (arg1[0] == '@')
+		{
+			imCodeGenerator.gen4(op, arg1, arg2, arg1);
+		}
+		else if (arg2[0] == '@')
+		{
+			imCodeGenerator.gen4(op, arg1, arg2, arg2);
+			arg1 = arg2;
+		}
+		else
+		{
+			tempName = tmpNameManager.getTempName();
+			table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
+			imCodeGenerator.gen4(op, arg1, arg2, tempName);
+			arg1 = tempName;
+		}
 	}
 
 	printInfo("This is a <项>");

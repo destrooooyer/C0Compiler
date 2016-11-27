@@ -54,3 +54,30 @@ string util::int2string(int in)
 	ss >> temp;
 	return temp;
 }
+
+bool util::isArr(string str)
+{
+	if (str[str.length() - 1] == ']')
+		return true;
+	else
+		return false;
+}
+
+string util::getArrName(string str)
+{
+	string temp;
+	for (int i = 0; str[i] != '['; i++)
+		temp += str[i];
+	return temp;
+}
+
+string util::getArrIndex(string str)
+{
+	int loc = 0;
+	string temp;
+	while (str[loc++] != '[');
+	while (str[loc] != ']')
+		temp += str[loc++];
+	return temp;
+}
+

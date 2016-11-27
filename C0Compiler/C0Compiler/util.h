@@ -11,6 +11,9 @@ public:
 	static int parseInt(std::string str);	//parse int
 	static char parseChar(std::string str);	//parse char
 	static std::string int2string(int in);	//transfer int to char
+	static bool isArr(std::string str);
+	static std::string getArrName(std::string str);
+	static std::string getArrIndex(std::string str);
 };
 
 

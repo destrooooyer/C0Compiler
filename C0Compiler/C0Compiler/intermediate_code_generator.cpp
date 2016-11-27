@@ -10,7 +10,7 @@ TempNameManager::TempNameManager()
 
 string TempNameManager::getTempName()
 {
-	string temp = "temp";
+	string temp = "@temp";
 	count++;
 	temp += util::int2string(count);
 	return temp;
