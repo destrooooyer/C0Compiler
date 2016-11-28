@@ -60,6 +60,7 @@ public:
 
 
 private:
+	int paraCount;
 	Table table;
 	RegManager regManager;
 	AddrDescriptor addrDescriptor;
@@ -80,6 +81,9 @@ private:
 
 	void genCondition(std::string funcName, int loc);
 	void genPushPara(std::string funcName, int loc);
+	void genCallVoid(int loc);
+	void genCall(std::string funcName, int loc);
+	void genReturn(std::string funcName, int loc);
 
 };
 
