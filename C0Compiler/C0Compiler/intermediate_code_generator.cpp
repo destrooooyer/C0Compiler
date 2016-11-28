@@ -65,12 +65,12 @@ void IMCodeGenerator::genAssign(string src, string dst)
 
 void IMCodeGenerator::genJz(string arg, string label)
 {
-	quadruples.push_back(Quadruple("jz", arg, label, ""));
+	quadruples.push_back(Quadruple("jz", label, "", ""));
 }
 
 void IMCodeGenerator::genJnz(string arg, string label)
 {
-	quadruples.push_back(Quadruple("jnz", arg, label, ""));
+	quadruples.push_back(Quadruple("jnz", label, "", ""));
 }
 
 void IMCodeGenerator::genJmp(string label)

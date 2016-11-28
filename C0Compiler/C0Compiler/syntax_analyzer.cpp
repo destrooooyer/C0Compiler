@@ -1051,10 +1051,10 @@ string SyntaxAnalyzer::condition()
 		op = symbles[iter].getValue();
 		iter++;
 		arg2 = expression();
-		tempName = tmpNameManager.getTempName();
-		table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
-		imCodeGenerator.gen4(op, arg1, arg2, tempName);
-		arg1 = tempName;
+		//tempName = tmpNameManager.getTempName();
+		//table.put(funcName, tempName, TableItem(tempName, "temp", "int"));
+		imCodeGenerator.gen4(op, arg1, arg2, "");
+		//arg1 = tempName;
 	}
 
 	printInfo("This is a <Ìõ¼þ>");

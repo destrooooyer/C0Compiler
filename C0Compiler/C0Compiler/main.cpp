@@ -39,8 +39,8 @@ int main()
 	cout << "输入源文件的文件名:\t";
 	//cin >> sourceFile;
 	//sourceFile = "D:/documents/学校相关/编译/语法分析/14061120_刘润泽_语法分析/14061120_test.txt";
-	sourceFile = "D:\\documents\\学校相关\\编译\\代码生成\\test.txt";
-	//sourceFile = "C:\\Users\\DESTRooooYER\\Desktop\\Vsiaul Assist X\\a.txt";
+	//sourceFile = "D:\\documents\\学校相关\\编译\\代码生成\\test.txt";
+	sourceFile = "C:\\Users\\DESTRooooYER\\Desktop\\Vsiaul Assist X\\a.txt";
 	cout << sourceFile;
 
 

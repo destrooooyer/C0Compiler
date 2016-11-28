@@ -78,6 +78,9 @@ private:
 	void genAssign(std::string funcName, int loc);
 	void genPrintf(std::string funcName, int loc);
 
+	void genCondition(std::string funcName, int loc);
+	void genPushPara(std::string funcName, int loc);
+
 };
 
 

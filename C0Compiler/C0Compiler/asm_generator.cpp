@@ -86,7 +86,7 @@ void AsmGenerator::genFunc(int locBegin)
 
 string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regOccupied)
 {
-	string result;
+	string result = "dword ptr ";
 	string tempFunc = funcName;
 	if (util::isArr(name))
 	{
@@ -203,56 +203,161 @@ string AsmGenerator::prepareReg(vector<string>regOccupied)
 string AsmGenerator::getAddrReg(string funcName, string name, vector<string> regOccupied)
 {
 	string temp;
-	if (util::isArr(name))	//sym is an array element
+	if (util::isNumber(name[0]))
 	{
-		string arrName = util::getArrName(name);
-		string arrIndex = util::getArrIndex(name);
-
-
-		//if (table.check(funcName, arrName) == false)
-		//	funcName = "globle";
-
 		temp = regManager.getReg();
 		if (temp == "*")		//no empty regs
 		{
 			temp = prepareReg(regOccupied);
 		}
-
-		regManager.load(temp, funcName, name);
 		string tempInstr = "mov ";
 		tempInstr += temp + ", ";
-		tempInstr += getAddrRam(funcName, name, regOccupied);
+		tempInstr += name;
 		asmCodes.push_back(tempInstr);
+		regManager.load(temp, funcName, name);
 		return temp;
-
 	}
 	else
 	{
-		//if (table.check(funcName, name) == false)
-		//	funcName = "globle";
+		if (util::isArr(name))	//sym is an array element
+		{
+			string arrName = util::getArrName(name);
+			string arrIndex = util::getArrIndex(name);
 
-		if (addrDescriptor.isInReg(funcName, name))	//sym is in reg
-		{
-			temp = addrDescriptor.getRegAddr(funcName, name);
-			return temp;
-		}
-		else	//sym is in ram, mov
-		{
-			int locTemp = addrDescriptor.getRamAddr(funcName, name);
+
+			//if (table.check(funcName, arrName) == false)
+			//	funcName = "globle";
+
 			temp = regManager.getReg();
-			if (temp == "*")		//no empty reg
+			if (temp == "*")		//no empty regs
 			{
 				temp = prepareReg(regOccupied);
 			}
+
 			regManager.load(temp, funcName, name);
-			addrDescriptor.setRegAddr(funcName, name, temp);
 			string tempInstr = "mov ";
 			tempInstr += temp + ", ";
 			tempInstr += getAddrRam(funcName, name, regOccupied);
 			asmCodes.push_back(tempInstr);
 			return temp;
+
+		}
+		else
+		{
+			//if (table.check(funcName, name) == false)
+			//	funcName = "globle";
+
+			if (addrDescriptor.isInReg(funcName, name))	//sym is in reg
+			{
+				temp = addrDescriptor.getRegAddr(funcName, name);
+				return temp;
+			}
+			else	//sym is in ram, mov
+			{
+				int locTemp = addrDescriptor.getRamAddr(funcName, name);
+				temp = regManager.getReg();
+				if (temp == "*")		//no empty reg
+				{
+					temp = prepareReg(regOccupied);
+				}
+				regManager.load(temp, funcName, name);
+				addrDescriptor.setRegAddr(funcName, name, temp);
+				string tempInstr = "mov ";
+				tempInstr += temp + ", ";
+				tempInstr += getAddrRam(funcName, name, regOccupied);
+				asmCodes.push_back(tempInstr);
+				return temp;
+			}
 		}
 	}
+}
+
+void AsmGenerator::genCondition(string funcName, int loc)
+{
+	int flag = 0;
+	string op = imCodes[loc].op;
+	string IMarg1 = imCodes[loc].arg1;
+	string IMarg2 = imCodes[loc].arg2;
+	vector<string> regOccupied;
+	string arg1 = getAddrReg(funcName, IMarg1, regOccupied);
+	regOccupied.push_back(arg1);
+	string arg2 = getAddrReg(funcName, IMarg2, regOccupied);
+
+	asmCodes.push_back("cmp " + arg1 + ", " + arg2);
+	if (imCodes[loc + 1].op == "jz") flag = -1;
+	else if (imCodes[loc + 1].op == "jnz") flag = 1;
+
+	string label;
+	for (int i = 0; i < imCodes[loc + 1].arg1.length() - 1; i++)
+		label += imCodes[loc + 1].arg1[i];
+
+	if (op == ">")
+	{
+		if (flag == 1)
+			asmCodes.push_back("jg " + label);
+		else if (flag == -1)
+			asmCodes.push_back("jle " + label);
+	}
+	else if (op == ">=")
+	{
+		if (flag == 1)
+			asmCodes.push_back("jge " + label);
+		else if (flag == -1)
+			asmCodes.push_back("jl " + label);
+	}
+	else if (op == "<")
+	{
+		if (flag == 1)
+			asmCodes.push_back("jl " + label);
+		else if (flag == -1)
+			asmCodes.push_back("jge " + label);
+	}
+	else if (op == "<=")
+	{
+		if (flag == 1)
+			asmCodes.push_back("jle " + label);
+		else if (flag == -1)
+			asmCodes.push_back("jg " + label);
+	}
+	else if (op == "==")
+	{
+		if (flag == 1)
+			asmCodes.push_back("je " + label);
+		else if (flag == -1)
+			asmCodes.push_back("jne " + label);
+	}
+	else if (op == "!=")
+	{
+		if (flag == 1)
+			asmCodes.push_back("jne " + label);
+		else if (flag == -1)
+			asmCodes.push_back("je " + label);
+	}
+
+	if (util::isNumber(IMarg1[0]))
+		regManager.save(arg1);
+
+	if (util::isNumber(IMarg2[0]))
+		regManager.save(arg2);
+	/*
+		if (util::isNumber(arg1[0]) && util::isNumber(arg2[0]))
+		{
+			bool result = 0;
+			if (op == ">")
+				result = (util::parseInt(arg1) > util::parseInt(arg2));
+			else if (op == ">=")
+				result = (util::parseInt(arg1) >= util::parseInt(arg2));
+			else if (op == "<")
+				result = (util::parseInt(arg1) < util::parseInt(arg2));
+			else if (op == "<=")
+				result = (util::parseInt(arg1) <= util::parseInt(arg2));
+			else if (op == "==")
+				result = (util::parseInt(arg1) == util::parseInt(arg2));
+			else if (op == "!=")
+				result = (util::parseInt(arg1) != util::parseInt(arg2));
+
+		}
+	*/
 }
 
 void AsmGenerator::genLabel(std::string funcName, int loc)
@@ -262,10 +367,11 @@ void AsmGenerator::genLabel(std::string funcName, int loc)
 
 void AsmGenerator::genJmp(int loc)
 {
-	string temp = "jmp ";
+	string temp = "jmp ", temp2;
 	temp += imCodes[loc].arg1;
-	temp[temp.length() - 1] = 0;
-	asmCodes.push_back(temp);
+	for (int i = 0; i < temp.length() - 1; i++)
+		temp2 += temp[i];
+	asmCodes.push_back(temp2);
 }
 
 void AsmGenerator::genAssign(string funcName, int loc)
@@ -292,10 +398,33 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 	if (tempReg == "*")
 		tempReg = prepareReg(vector<string>());
 	asmCodes.push_back("lea " + tempReg + ", @@formatD");
-	asmCodes.push_back("push " + tempReg); 
+	asmCodes.push_back("push " + tempReg);
 	asmCodes.push_back("call printf");
 	asmCodes.push_back("add esp, 8");
 
+}
+
+void AsmGenerator::genPushPara(string funcName, int loc)
+{
+	vector<Quadruple> pushes;
+	int locBackUp = loc;
+	while (imCodes[loc].op == "pushpara")
+		pushes.push_back(imCodes[loc++]);
+	for (int i = pushes.size() - 1; i >= 0; i--)
+	{
+		string temp = pushes[i].arg1;
+		if (util::isNumber(temp[0]))
+			asmCodes.push_back("push " + temp);
+		else if (util::isArr(temp))
+			asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+		else
+		{
+			if (addrDescriptor.isInReg(funcName, temp))
+				asmCodes.push_back("push " + addrDescriptor.getRegAddr(funcName, temp));
+			else
+				asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+		}
+	}
 }
 
 void AsmGenerator::genStatement(int loc, string funcName)
@@ -477,6 +606,20 @@ void AsmGenerator::genStatement(int loc, string funcName)
 	else if (imCodes[loc].op == "printf")
 	{
 		genPrintf(funcName, loc);
+	}
+	else if (imCodes[loc].op == ">" ||
+		imCodes[loc].op == ">=" ||
+		imCodes[loc].op == "<" ||
+		imCodes[loc].op == "<=" ||
+		imCodes[loc].op == "==" ||
+		imCodes[loc].op == "!=")
+	{
+		genCondition(funcName, loc);
+	}
+	else if (imCodes[loc].op == "pushpara")
+	{
+		if (imCodes[loc - 1].op != "pushpara")
+			genPushPara(funcName, loc);
 	}
 }
 
