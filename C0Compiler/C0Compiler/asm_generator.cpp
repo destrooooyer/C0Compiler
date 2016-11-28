@@ -25,12 +25,14 @@ void AsmGenerator::genData()
 	asmCodes.push_back(".data");
 	map<string, TableItem> globleTable = table.getTable("globle");
 
+	asmCodes.push_back("@@formatD  byte \"%d\", 0");
 	for (map<string, TableItem>::iterator iter = globleTable.begin(); iter != globleTable.end(); iter++)
 	{
 		if (iter->second.getKind() == "const" ||
 			iter->second.getKind() == "variable")
 		{
 			string temp;
+			temp += "@@";
 			temp += iter->second.getName();
 			temp += " dword ";
 			temp += util::int2string(iter->second.getValue());
@@ -56,6 +58,9 @@ void AsmGenerator::genCode()
 
 void AsmGenerator::genFunc(int locBegin)
 {
+	addrDescriptor.reset();
+	regManager.reset();
+
 	int codeIter = locBegin;
 	asmCodes.push_back("");
 	asmCodes.push_back("; " + imCodes[codeIter].arg1);
@@ -82,12 +87,13 @@ void AsmGenerator::genFunc(int locBegin)
 string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regOccupied)
 {
 	string result;
+	string tempFunc = funcName;
 	if (util::isArr(name))
 	{
 		string arrName = util::getArrName(name);
 		string arrIndex = util::getArrIndex(name);
-		if (!table.check(funcName, arrName))
-			funcName = "globle";
+		if (!table.check(tempFunc, arrName))
+			tempFunc = "globle";
 
 		string index;
 		if (util::isNumber(arrIndex[0]))
@@ -100,8 +106,8 @@ string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regO
 		}
 
 		int loc = addrDescriptor.getRamAddr(funcName, arrName);
-		if (funcName == "globle")
-			result += "[" + arrName + "+" + index + "*4]";
+		if (tempFunc == "globle")
+			result += "[@@" + arrName + "+" + index + "*4]";
 		else
 		{
 			result += "[ebp";
@@ -112,12 +118,12 @@ string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regO
 	}
 	else
 	{
-		if (!table.check(funcName, name))
-			funcName = "globle";
+		if (!table.check(tempFunc, name))
+			tempFunc = "globle";
 
 		int loc = addrDescriptor.getRamAddr(funcName, name);
-		if (funcName == "globle")
-			result += "[" + name + "]";
+		if (tempFunc == "globle")
+			result += "[@@" + name + "]";
 		else {
 			result += "[ebp";
 			if (loc >= 0)
@@ -203,8 +209,8 @@ string AsmGenerator::getAddrReg(string funcName, string name, vector<string> reg
 		string arrIndex = util::getArrIndex(name);
 
 
-		if (table.check(funcName, arrName) == false)
-			funcName = "globle";
+		//if (table.check(funcName, arrName) == false)
+		//	funcName = "globle";
 
 		temp = regManager.getReg();
 		if (temp == "*")		//no empty regs
@@ -222,8 +228,8 @@ string AsmGenerator::getAddrReg(string funcName, string name, vector<string> reg
 	}
 	else
 	{
-		if (table.check(funcName, name) == false)
-			funcName = "globle";
+		//if (table.check(funcName, name) == false)
+		//	funcName = "globle";
 
 		if (addrDescriptor.isInReg(funcName, name))	//sym is in reg
 		{
@@ -249,6 +255,49 @@ string AsmGenerator::getAddrReg(string funcName, string name, vector<string> reg
 	}
 }
 
+void AsmGenerator::genLabel(std::string funcName, int loc)
+{
+	asmCodes.push_back(imCodes[loc].arg1);
+}
+
+void AsmGenerator::genJmp(int loc)
+{
+	string temp = "jmp ";
+	temp += imCodes[loc].arg1;
+	temp[temp.length() - 1] = 0;
+	asmCodes.push_back(temp);
+}
+
+void AsmGenerator::genAssign(string funcName, int loc)
+{
+	string arg1, arg2;
+	vector<string> regOccupied;
+	arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+	regOccupied.push_back(arg1);
+	if (util::isNumber(imCodes[loc].arg2[0]))
+		arg2 = imCodes[loc].arg2;
+	else
+		arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+
+	asmCodes.push_back("mov " + arg1 + ", " + arg2);
+}
+
+void AsmGenerator::genPrintf(string funcName, int loc)
+{
+	string arg = getAddrReg(funcName, imCodes[loc].arg1, vector<string>());
+	string tempReg;
+
+	asmCodes.push_back("push " + arg);
+	tempReg = regManager.getReg();
+	if (tempReg == "*")
+		tempReg = prepareReg(vector<string>());
+	asmCodes.push_back("lea " + tempReg + ", @@formatD");
+	asmCodes.push_back("push " + tempReg); 
+	asmCodes.push_back("call printf");
+	asmCodes.push_back("add esp, 8");
+
+}
+
 void AsmGenerator::genStatement(int loc, string funcName)
 {
 	string arg1, arg2;
@@ -261,7 +310,10 @@ void AsmGenerator::genStatement(int loc, string funcName)
 			vector<string> regOccupied;
 			arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
 			regOccupied.push_back(arg1);
-			arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+			if (util::isNumber(imCodes[loc].arg2[0]))
+				arg2 = imCodes[loc].arg2;
+			else
+				arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 
 			if (imCodes[loc].op == "+")
 				asmCodes.push_back("add " + arg1 + ", " + arg2);
@@ -276,7 +328,10 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		else if (imCodes[loc].arg2 == imCodes[loc].arg3)
 		{
 			vector<string> regOccupied;
-			arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+			if (util::isNumber(imCodes[loc].arg1[0]))
+				arg1 = imCodes[loc].arg1;
+			else
+				arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
 			regOccupied.push_back(arg1);
 			arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 
@@ -298,29 +353,59 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		{
 			vector<string> regOccupied;
 			string regArg1 = "";
-
-			if (util::isArr(imCodes[loc].arg1) == false && addrDescriptor.isInReg(funcName, imCodes[loc].arg1))
+			if (util::isNumber(imCodes[loc].arg1[0]) && util::isNumber(imCodes[loc].arg2[0]))
 			{
-				regArg1 = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
-				genSave(regArg1, regOccupied);
+				int sum = util::parseInt(imCodes[loc].arg1) + util::parseInt(imCodes[loc].arg2);
+				string arg = getAddrReg(funcName, imCodes[loc].arg3, regOccupied);
+				asmCodes.push_back("mov " + arg + ", " + util::int2string(sum));
 			}
-			if (regArg1 == "")
-				arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
 			else
-				arg1 = regArg1;
-			regOccupied.push_back(arg1);
-			arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+			{
+				if (!util::isNumber(imCodes[loc].arg1[0]))	//+ a 2 b
+				{
+					if (util::isArr(imCodes[loc].arg1) == false && addrDescriptor.isInReg(funcName, imCodes[loc].arg1))
+					{
+						regArg1 = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
+						genSave(regArg1, regOccupied);
+					}
+					if (regArg1 == "")
+						arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+					else
+						arg1 = regArg1;
+					regOccupied.push_back(arg1);
+					if (util::isNumber(imCodes[loc].arg2[0]))
+						arg2 = imCodes[loc].arg2;
+					arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+				}
+				else if (!util::isNumber(imCodes[loc].arg2[0]))	//+ 2 a b
+				{
+					if (util::isArr(imCodes[loc].arg2) == false && addrDescriptor.isInReg(funcName, imCodes[loc].arg2))
+					{
+						regArg1 = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg2);
+						genSave(regArg1, regOccupied);
+					}
+					if (regArg1 == "")
+						arg1 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+					else
+						arg1 = regArg1;
+					regOccupied.push_back(arg1);
+					if (util::isNumber(imCodes[loc].arg1[0]))
+						arg2 = imCodes[loc].arg1;
+					arg2 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+				}
 
-			if (imCodes[loc].op == "+")
-				asmCodes.push_back("add " + arg1 + ", " + arg2);
-			else if (imCodes[loc].op == "-")
-				asmCodes.push_back("sub " + arg1 + ", " + arg2);
-			else if (imCodes[loc].op == "*")
-				asmCodes.push_back("imul " + arg1 + ", " + arg2);
+				if (imCodes[loc].op == "+")
+					asmCodes.push_back("add " + arg1 + ", " + arg2);
+				else if (imCodes[loc].op == "-")
+					asmCodes.push_back("sub " + arg1 + ", " + arg2);
+				else if (imCodes[loc].op == "*")
+					asmCodes.push_back("imul " + arg1 + ", " + arg2);
 
-			regManager.load(arg1, funcName, imCodes[loc].arg3);
-			addrDescriptor.setRegAddr(funcName, imCodes[loc].arg1, "*");
-			addrDescriptor.setRegAddr(funcName, imCodes[loc].arg3, arg1);
+				regManager.load(arg1, funcName, imCodes[loc].arg3);
+				addrDescriptor.setRegAddr(funcName, imCodes[loc].arg1, "*");
+				addrDescriptor.setRegAddr(funcName, imCodes[loc].arg3, arg1);
+
+			}
 
 			if (util::isArr(imCodes[loc].arg3))
 				genSave(arg1, vector<string>());
@@ -346,17 +431,28 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		//arg1 -> eax
 		string tempInstr = "mov ";
 		tempInstr += "eax, ";
-		if (addrDescriptor.isInReg(funcName, imCodes[loc].arg1))
-			tempInstr += addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
+		if (util::isNumber(imCodes[loc].arg1[0]))
+		{
+			tempInstr += imCodes[loc].arg1;
+		}
 		else
-			tempInstr += getAddrRam(funcName, imCodes[loc].arg1, regOccupied);
+		{
+			if (addrDescriptor.isInReg(funcName, imCodes[loc].arg1))
+				tempInstr += addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
+			else
+				tempInstr += getAddrRam(funcName, imCodes[loc].arg1, regOccupied);
+		}
 		asmCodes.push_back(tempInstr);
 		regManager.load("eax", funcName, "*");
 
 		//idiv arg2
 		regOccupied.push_back("eax");
 		regOccupied.push_back("edx");
-		string arg = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+		string arg;
+		if (util::isNumber(imCodes[loc].arg2[0]))
+			arg = imCodes[loc].arg2;
+		else
+			arg = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 		asmCodes.push_back("idiv " + arg);
 		regManager.save("edx");
 
@@ -365,6 +461,22 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		if (addrDescriptor.isInReg(funcName, imCodes[loc].arg3))
 			regManager.save(addrDescriptor.getRegAddr(funcName, imCodes[loc].arg3));
 		addrDescriptor.setRegAddr(funcName, imCodes[loc].arg3, "eax");
+	}
+	else if (imCodes[loc].op == "label")
+	{
+		genLabel(funcName, loc);
+	}
+	else if (imCodes[loc].op == "jmp")
+	{
+		genJmp(loc);
+	}
+	else if (imCodes[loc].op == "=")
+	{
+		genAssign(funcName, loc);
+	}
+	else if (imCodes[loc].op == "printf")
+	{
+		genPrintf(funcName, loc);
 	}
 }
 
@@ -437,6 +549,23 @@ RegManager::RegManager()
 	regContent["edi"] = pair<string, string>("", "");
 }
 
+void RegManager::reset()
+{
+	regAvailability["eax"] = true;
+	regAvailability["ebx"] = true;
+	regAvailability["ecx"] = true;
+	regAvailability["edx"] = true;
+	regAvailability["esi"] = true;
+	regAvailability["edi"] = true;
+
+	regContent["eax"] = pair<string, string>("", "");
+	regContent["ebx"] = pair<string, string>("", "");
+	regContent["ecx"] = pair<string, string>("", "");
+	regContent["edx"] = pair<string, string>("", "");
+	regContent["esi"] = pair<string, string>("", "");
+	regContent["edi"] = pair<string, string>("", "");
+}
+
 bool RegManager::isAvailable(string regName)
 {
 	if (regAvailability.count(regName))
@@ -475,6 +604,7 @@ AddrDescriptor::AddrDescriptor()
 {
 }
 
+
 AddrDescriptor::AddrDescriptor(Table table)
 {
 	vector<string> tableKeys = table.getKeys();
@@ -512,13 +642,24 @@ AddrDescriptor::AddrDescriptor(Table table)
 	this->table = table;
 }
 
+void AddrDescriptor::reset()
+{
+	for (map<string, map<string, string>>::iterator iter = addrReg.begin(); iter != addrReg.end(); iter++)
+	{
+		for (map<string, string>::iterator i = iter->second.begin(); i != iter->second.end(); i++)
+			i->second = "*";
+	}
+}
+
+
 bool AddrDescriptor::isInReg(string funcName, string name)
 {
+	string temp = funcName;
 	if (util::isArr(name))
 		return false;
-	if (table.check(funcName, name) == false)
-		funcName = "globle";
-	if (addrReg[funcName][name] == "*")
+	if (table.check(temp, name) == false)
+		temp = "globle";
+	if (addrReg[temp][name] == "*")
 		return false;
 	else
 		return true;
@@ -526,30 +667,33 @@ bool AddrDescriptor::isInReg(string funcName, string name)
 
 string AddrDescriptor::getRegAddr(string funcName, string name)
 {
+	string temp = funcName;
 	if (util::isArr(name))
 		return "";
-	if (table.check(funcName, name) == false)
-		funcName = "globle";
-	return addrReg[funcName][name];
+	if (table.check(temp, name) == false)
+		temp = "globle";
+	return addrReg[temp][name];
 }
 
 int AddrDescriptor::getRamAddr(string funcName, string name)
 {
+	string temp = funcName;
 	if (util::isArr(name))
 		return 0;
-	if (table.check(funcName, name) == false)
-		funcName = "globle";
-	return addrRam[funcName][name];
+	if (table.check(temp, name) == false)
+		temp = "globle";
+	return addrRam[temp][name];
 }
 
 void AddrDescriptor::setRegAddr(string funcName, string name, string regName)
 {
+	string temp = funcName;
 	if (util::isArr(name))
 		return;
-	if (table.check(funcName, name) == false)
-		funcName = "globle";
-	if (addrReg.count(funcName) && addrReg[funcName].count(name))
-		addrReg[funcName][name] = regName;
+	if (table.check(temp, name) == false)
+		temp = "globle";
+	if (addrReg.count(temp) && addrReg[temp].count(name))
+		addrReg[temp][name] = regName;
 }
 
 void AddrDescriptor::printAddrRam()

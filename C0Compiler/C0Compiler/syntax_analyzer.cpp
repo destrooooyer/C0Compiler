@@ -1504,7 +1504,7 @@ bool SyntaxAnalyzer::forStatement()
 	}
 
 	tempName = expression();
-	imCodeGenerator.genAssign(tempName, name);
+	imCodeGenerator.genAssign(name, tempName);
 	imCodeGenerator.genLabel(label2);
 
 	if (symbles[iter].getType() == "SEMICOLON")

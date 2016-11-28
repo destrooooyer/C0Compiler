@@ -1,9 +1,0 @@
-﻿  asm_generator.cpp
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(48): warning C4018: '<': signed/unsigned mismatch
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(70): warning C4018: '<': signed/unsigned mismatch
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(179): warning C4018: '<': signed/unsigned mismatch
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(417): warning C4018: '<': signed/unsigned mismatch
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(481): warning C4018: '<': signed/unsigned mismatch
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(444): warning C4715: 'RegManager::isAvailable': not all control paths return a value
-c:\users\destr\documents\github\c0compiler\c0compiler\c0compiler\asm_generator.cpp(450): warning C4715: 'RegManager::getRegContent': not all control paths return a value
-  C0Compiler.vcxproj -> C:\Users\DESTR\Documents\GitHub\C0Compiler\C0Compiler\Debug\C0Compiler.exe
