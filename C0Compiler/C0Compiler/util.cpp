@@ -86,7 +86,7 @@ string util::getArrIndex(string str)
 	int loc = 0;
 	string temp;
 	while (str[loc++] != '[');
-	while (str[loc] != ']')
+	while (loc < str.length() - 1)
 		temp += str[loc++];
 	return temp;
 }

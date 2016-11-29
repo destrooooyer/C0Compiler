@@ -457,12 +457,12 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 	{
 		string name;
 		if (util::isArr(imCodes[loc].arg1))
-			name = util::getArrName(name);
+			name = util::getArrName(imCodes[loc].arg1);
 		else
 			name = imCodes[loc].arg1;
 		if (!table.check(funcName, name))
 			funcName = "globle";
-		if(table.get(funcName,name).getType()=="char")
+		if (table.get(funcName, name).getType() == "char")
 			asmCodes.push_back("lea " + tempReg + ", $formatC");
 		else
 			asmCodes.push_back("lea " + tempReg + ", $formatD");
@@ -674,10 +674,11 @@ void AsmGenerator::genStatement(int loc, string funcName)
 			{
 				if (!util::isnumber(imCodes[loc].arg1[0]))	//+ a 2 b
 				{
+					int flag = 0;
 					if (util::isArr(imCodes[loc].arg1) == false && addrDescriptor.isInReg(funcName, imCodes[loc].arg1))
 					{
 						regArg1 = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
-						genSave(regArg1, regOccupied);
+						flag = 1;
 					}
 					if (regArg1 == "")
 						arg1 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
@@ -686,14 +687,19 @@ void AsmGenerator::genStatement(int loc, string funcName)
 					regOccupied.push_back(arg1);
 					if (util::isnumber(imCodes[loc].arg2[0]))
 						arg2 = imCodes[loc].arg2;
-					arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+					else
+						arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+					regOccupied.push_back(arg2);
+					if (flag)
+						genSave(regArg1, regOccupied);
 				}
 				else if (!util::isnumber(imCodes[loc].arg2[0]))	//+ 2 a b
 				{
+					int flag = 0;
 					if (util::isArr(imCodes[loc].arg2) == false && addrDescriptor.isInReg(funcName, imCodes[loc].arg2))
 					{
 						regArg1 = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg2);
-						genSave(regArg1, regOccupied);
+						flag = 1;
 					}
 					if (regArg1 == "")
 						arg1 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
@@ -702,7 +708,11 @@ void AsmGenerator::genStatement(int loc, string funcName)
 					regOccupied.push_back(arg1);
 					if (util::isnumber(imCodes[loc].arg1[0]))
 						arg2 = imCodes[loc].arg1;
-					arg2 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+					else
+						arg2 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
+					regOccupied.push_back(arg2);
+					if (flag)
+						genSave(regArg1, regOccupied);
 				}
 
 				if (imCodes[loc].op == "+")
