@@ -86,6 +86,7 @@ private:
 	void genCallVoid(int loc);
 	void genCall(std::string funcName, int loc);
 	void genReturn(std::string funcName, int loc);
+	void genScanf(std::string funcName, int loc);
 
 	void getStrings();
 	void genHeader();

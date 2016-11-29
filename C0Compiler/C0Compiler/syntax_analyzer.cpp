@@ -1039,6 +1039,7 @@ string SyntaxAnalyzer::condition()
 	string arg1;
 	string arg2;
 	string op;
+	int flag = 0;
 
 	arg1 = expression();
 	if (symbles[iter].getType() == "EQUAL" ||
@@ -1048,6 +1049,7 @@ string SyntaxAnalyzer::condition()
 		symbles[iter].getType() == "GREATER" ||
 		symbles[iter].getType() == "GREATER_OR_EQUAL")
 	{
+		flag = 1;
 		op = symbles[iter].getValue();
 		iter++;
 		arg2 = expression();
@@ -1056,6 +1058,8 @@ string SyntaxAnalyzer::condition()
 		imCodeGenerator.gen4(op, arg1, arg2, "");
 		//arg1 = tempName;
 	}
+	if(flag==0)
+		imCodeGenerator.gen4("!=", arg1, "0", "");
 
 	printInfo("This is a <Ìõ¼þ>");
 	return arg1;

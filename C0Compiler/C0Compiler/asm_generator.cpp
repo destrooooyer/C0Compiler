@@ -2,6 +2,7 @@
 #include "util.h"
 #include <map>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -76,7 +77,7 @@ void AsmGenerator::genData()
 	}
 	for (map<string, string>::iterator iter = strs.begin(); iter != strs.end(); iter++)
 	{
-		asmCodes.push_back(iter->first + " byte " + iter->second+", 0");
+		asmCodes.push_back(iter->first + " byte " + iter->second + ", 0");
 	}
 }
 
@@ -253,7 +254,7 @@ string AsmGenerator::getAddrReg(string funcName, string name, vector<string> reg
 		tempInstr += temp + ", ";
 		tempInstr += name;
 		asmCodes.push_back(tempInstr);
-		regManager.load(temp, funcName, name);
+		//regManager.load(temp, funcName, name);
 		return temp;
 	}
 	else
@@ -426,6 +427,12 @@ void AsmGenerator::genAssign(string funcName, int loc)
 		arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 
 	asmCodes.push_back("mov " + arg1 + ", " + arg2);
+	if (addrDescriptor.isInReg(funcName,imCodes[loc].arg1))
+	{
+		string regTemp = addrDescriptor.getRegAddr(funcName, imCodes[loc].arg1);
+		regManager.save(regTemp);
+		addrDescriptor.setRegAddr(funcName, imCodes[loc].arg1, "*");
+	}
 
 	// 	if (util::isArr(imCodes[loc].arg1))
 	// 		genSave(arg1, vector<string>());
@@ -445,8 +452,44 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 
 	if (!regManager.isAvailable("eax"))
 		genSave("eax", vector<string>());
+	if (!regManager.isAvailable("ecx"))
+		genSave("ecx", vector<string>());
+	if (!regManager.isAvailable("edx"))
+		genSave("edx", vector<string>());
 
 	asmCodes.push_back("call printf");
+	asmCodes.push_back("add esp, 8");
+
+}
+
+void AsmGenerator::genScanf(string funcName, int loc)
+{
+	//string arg = getAddrReg(funcName, imCodes[loc].arg1, vector<string>());
+	string tempReg;
+	string dest;
+
+
+	tempReg = regManager.getReg();
+	if (tempReg == "*")
+		tempReg = prepareReg(vector<string>());
+	dest = getAddrRam(funcName, imCodes[loc].arg1, vector<string>());
+	asmCodes.push_back("lea " + tempReg + ", " + dest);
+
+	asmCodes.push_back("push " + tempReg);
+	tempReg = regManager.getReg();
+	if (tempReg == "*")
+		tempReg = prepareReg(vector<string>());
+	asmCodes.push_back("lea " + tempReg + ", [$formatD]");
+	asmCodes.push_back("push " + tempReg);
+
+	if (!regManager.isAvailable("eax"))
+		genSave("eax", vector<string>());
+	if (!regManager.isAvailable("ecx"))
+		genSave("ecx", vector<string>());
+	if (!regManager.isAvailable("edx"))
+		genSave("edx", vector<string>());
+
+	asmCodes.push_back("call scanf");
 	asmCodes.push_back("add esp, 8");
 
 }
@@ -499,9 +542,9 @@ void AsmGenerator::genCallVoid(int loc)
 	if (!regManager.isAvailable("eax"))
 		genSave("eax", vector<string>());
 	if (!regManager.isAvailable("ecx"))
-		genSave("eax", vector<string>());
+		genSave("ecx", vector<string>());
 	if (!regManager.isAvailable("edx"))
-		genSave("eax", vector<string>());
+		genSave("edx", vector<string>());
 	asmCodes.push_back("call " + funcName);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 }
@@ -511,9 +554,9 @@ void AsmGenerator::genCall(string funcName, int loc)
 	if (!regManager.isAvailable("eax"))
 		genSave("eax", vector<string>());
 	if (!regManager.isAvailable("ecx"))
-		genSave("eax", vector<string>());
+		genSave("ecx", vector<string>());
 	if (!regManager.isAvailable("edx"))
-		genSave("eax", vector<string>());
+		genSave("edx", vector<string>());
 	asmCodes.push_back("call " + imCodes[loc].arg1);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 	regManager.load("eax", funcName, imCodes[loc].arg2);
@@ -590,7 +633,13 @@ void AsmGenerator::genStatement(int loc, string funcName)
 			string regArg1 = "";
 			if (util::isNumber(imCodes[loc].arg1[0]) && util::isNumber(imCodes[loc].arg2[0]))
 			{
-				int sum = util::parseInt(imCodes[loc].arg1) + util::parseInt(imCodes[loc].arg2);
+				int sum;
+				if (imCodes[loc].op == "+")
+					sum = util::parseInt(imCodes[loc].arg1) + util::parseInt(imCodes[loc].arg2);
+				if (imCodes[loc].op == "-")
+					sum = util::parseInt(imCodes[loc].arg1) - util::parseInt(imCodes[loc].arg2);
+				if (imCodes[loc].op == "*")
+					sum = util::parseInt(imCodes[loc].arg1) * util::parseInt(imCodes[loc].arg2);
 				string arg = getAddrReg(funcName, imCodes[loc].arg3, regOccupied);
 				asmCodes.push_back("mov " + arg + ", " + util::int2string(sum));
 			}
@@ -660,8 +709,8 @@ void AsmGenerator::genStatement(int loc, string funcName)
 			regManager.save("edx");
 			genSave("edx", vector<string>());
 		}
-		//0 -> edx
-		asmCodes.push_back("and edx, 0");
+		////0 -> edx
+		//asmCodes.push_back("and edx, 0");
 		regManager.load("edx", funcName, "*");
 		//arg1 -> eax
 		string tempInstr = "mov ";
@@ -679,15 +728,15 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		}
 		asmCodes.push_back(tempInstr);
 		regManager.load("eax", funcName, "*");
-
+		asmCodes.push_back("cdq");
 		//idiv arg2
 		regOccupied.push_back("eax");
 		regOccupied.push_back("edx");
 		string arg;
-		if (util::isNumber(imCodes[loc].arg2[0]))
-			arg = imCodes[loc].arg2;
-		else
-			arg = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
+		//		if (util::isNumber(imCodes[loc].arg2[0]))
+		//			arg = imCodes[loc].arg2;
+		//		else
+		arg = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 		asmCodes.push_back("idiv " + arg);
 		regManager.save("edx");
 
@@ -716,6 +765,10 @@ void AsmGenerator::genStatement(int loc, string funcName)
 	else if (imCodes[loc].op == "printf")
 	{
 		genPrintf(funcName, loc);
+	}
+	else if (imCodes[loc].op == "scanf")
+	{
+		genScanf(funcName, loc);
 	}
 	else if (imCodes[loc].op == "printStr")
 	{
@@ -796,8 +849,13 @@ void AsmGenerator::gen()
 
 void AsmGenerator::printAsmCodes()
 {
+	ofstream fout("2.asm");
 	for (int i = 0; i < asmCodes.size(); i++)
+	{
+		fout << asmCodes[i] << endl;
 		cout << asmCodes[i] << endl;
+	}
+	fout.close();
 }
 
 
