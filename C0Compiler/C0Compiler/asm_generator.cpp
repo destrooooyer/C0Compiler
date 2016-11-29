@@ -33,6 +33,16 @@ void AsmGenerator::getStrings()
 	}
 }
 
+void AsmGenerator::genHeader()
+{
+	asmCodes.push_back(".386");
+	asmCodes.push_back(".model flat, stdcall  ");
+	asmCodes.push_back("option casemap: none");
+	asmCodes.push_back("includelib msvcrt.lib");
+	asmCodes.push_back("printf proto c");
+	asmCodes.push_back("scanf proto c");
+}
+
 void AsmGenerator::genData()
 {
 	asmCodes.push_back("");
@@ -777,6 +787,7 @@ void AsmGenerator::genFuncEpilogue(string funcName)
 
 void AsmGenerator::gen()
 {
+	genHeader();
 	genData();
 	genCode();
 }
