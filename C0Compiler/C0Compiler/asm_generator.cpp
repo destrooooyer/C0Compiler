@@ -11,11 +11,26 @@ AsmGenerator::AsmGenerator(Table table, vector<Quadruple>imCodes)
 	this->imCodes = imCodes;
 	this->addrDescriptor = AddrDescriptor(table);
 	addrDescriptor.printAddrRam();
+	getStrings();
 }
 
 AsmGenerator::AsmGenerator()
 {
 
+}
+
+void AsmGenerator::getStrings()
+{
+	int s = 0;
+	for (int i = 0; i < imCodes.size(); i++)
+	{
+		if (imCodes[i].op == "printStr")
+		{
+			strs.insert(pair<string, string>("$str" + util::int2string(s), imCodes[i].arg1));
+			imCodes[i].arg1 = "$str" + util::int2string(s);
+			s++;
+		}
+	}
 }
 
 void AsmGenerator::genData()
@@ -25,19 +40,33 @@ void AsmGenerator::genData()
 	asmCodes.push_back(".data");
 	map<string, TableItem> globleTable = table.getTable("globle");
 
-	asmCodes.push_back("@@formatD  byte \"%d\", 0");
+	asmCodes.push_back("$formatD  byte \"%d\", 0");
 	for (map<string, TableItem>::iterator iter = globleTable.begin(); iter != globleTable.end(); iter++)
 	{
 		if (iter->second.getKind() == "const" ||
 			iter->second.getKind() == "variable")
 		{
 			string temp;
-			//temp += "@@";
+			temp += "$";
 			temp += iter->second.getName();
 			temp += " dword ";
 			temp += util::int2string(iter->second.getValue());
 			asmCodes.push_back(temp);
 		}
+		else if (iter->second.getKind() == "array")
+		{
+			string temp;
+			temp += "$";
+			temp += iter->second.getName();
+			temp += " dword ";
+			temp += util::int2string(iter->second.getValue());
+			temp += " dup(0)";
+			asmCodes.push_back(temp);
+		}
+	}
+	for (map<string, string>::iterator iter = strs.begin(); iter != strs.end(); iter++)
+	{
+		asmCodes.push_back(iter->first + " byte " + iter->second+", 0");
 	}
 }
 
@@ -107,7 +136,7 @@ string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regO
 
 		int loc = addrDescriptor.getRamAddr(funcName, arrName);
 		if (tempFunc == "globle")
-			result += "[" + arrName + "+" + index + "*4]";
+			result += "[$" + arrName + "+" + index + "*4]";
 		else
 		{
 			result += "[ebp";
@@ -123,7 +152,7 @@ string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regO
 
 		int loc = addrDescriptor.getRamAddr(funcName, name);
 		if (tempFunc == "globle")
-			result += "[" + name + "]";
+			result += "[$" + name + "]";
 		else {
 			result += "[ebp";
 			if (loc >= 0)
@@ -401,7 +430,7 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 	tempReg = regManager.getReg();
 	if (tempReg == "*")
 		tempReg = prepareReg(vector<string>());
-	asmCodes.push_back("lea " + tempReg + ", @@formatD");
+	asmCodes.push_back("lea " + tempReg + ", $formatD");
 	asmCodes.push_back("push " + tempReg);
 
 	if (!regManager.isAvailable("eax"))
@@ -411,6 +440,23 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 	asmCodes.push_back("add esp, 8");
 
 }
+
+void AsmGenerator::genPrintStr(int loc)
+{
+	string tempReg = regManager.getReg();
+	if (tempReg == "*")
+		tempReg = prepareReg(vector<string>());
+	asmCodes.push_back("lea " + tempReg + ", " + imCodes[loc].arg1);
+	asmCodes.push_back("push " + tempReg);
+
+	if (!regManager.isAvailable("eax"))
+		genSave("eax", vector<string>());
+
+	asmCodes.push_back("call printf");
+	asmCodes.push_back("add esp, 4");
+
+}
+
 
 void AsmGenerator::genPushPara(string funcName, int loc)
 {
@@ -660,6 +706,10 @@ void AsmGenerator::genStatement(int loc, string funcName)
 	else if (imCodes[loc].op == "printf")
 	{
 		genPrintf(funcName, loc);
+	}
+	else if (imCodes[loc].op == "printStr")
+	{
+		genPrintStr(loc);
 	}
 	else if (imCodes[loc].op == ">" ||
 		imCodes[loc].op == ">=" ||

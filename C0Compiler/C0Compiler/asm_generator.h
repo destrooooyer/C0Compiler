@@ -70,6 +70,7 @@ private:
 	std::string getAddrReg(std::string funcName, std::string name, std::vector<std::string> regOccupied);
 	std::string prepareReg(std::vector<std::string>regOccupied);
 	std::string getAddrRam(std::string funcName, std::string name, std::vector<std::string>regOccupied);
+	std::map<std::string, std::string> strs;
 
 	void genSave(std::string regName, std::vector<std::string> regOccupied);	//rag->ram
 	void genLoad(std::string funcName, std::string name, std::vector<std::string> regOccupied);	//ram->reg
@@ -78,12 +79,16 @@ private:
 	void genJmp(int loc);
 	void genAssign(std::string funcName, int loc);
 	void genPrintf(std::string funcName, int loc);
+	void genPrintStr(int loc);
 
 	void genCondition(std::string funcName, int loc);
 	void genPushPara(std::string funcName, int loc);
 	void genCallVoid(int loc);
 	void genCall(std::string funcName, int loc);
 	void genReturn(std::string funcName, int loc);
+
+	void getStrings();
+	void genHeader();
 
 };
 
