@@ -12,6 +12,16 @@ bool util::isNumber(char chr)
 			return true;
 	return false;
 }
+bool util::isnumber(char chr)
+{
+	string numbers = "0123456789";
+	for (int i = 0; i < numbers.length(); i++)
+		if (chr == numbers[i])
+			return true;
+	if (chr == '-')
+		return true;
+	return false;
+}
 
 bool util::isLetter(char chr)
 {

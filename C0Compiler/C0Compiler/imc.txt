@@ -1,121 +1,115 @@
-proc	funa		
-==	d	e	
+proc	f1		
++	1	a	@temp1
+return	@temp1		
+endp	f1		
+proc	f2		
+=	i	0	
+-	0	12	@temp2
+=	j	@temp2	
+=	k	320	
+=	a	45	
+=	b	50	
+=	c	47	
+=	d	95	
+return	97		
+endp	f2		
+proc	recursion		
+==	i	1	
 jz	L1:		
-=	d	e	
+return	1		
 jmp	L2:		
 label	L1:		
->	d	e	
-jz	L3:		
->=	d	e	
-jz	L4:		
-label	L4:		
-label	L3:		
+-	i	1	@temp3
+pushpara	@temp3		
+call	recursion	@temp4	
++	i	@temp4	@temp4
+return	@temp4		
 label	L2:		
-<	d	e	
-jz	L5:		
-<=	d	e	
-jz	L6:		
-!=	d	e	
-jz	L7:		
-!=	2	0	
-jz	L8:		
-label	L8:		
-label	L7:		
-label	L6:		
-label	L5:		
-label	L9:		
-=	d	e	
-!=	d	e	
-jnz	L9:		
-=	f	0	
-label	L11:		
-<	f	10	
-jz	L10:		
-+	f	1	f
-jmp	L11:		
-label	L10:		
-pushpara	d		
-pushpara	e		
-call	funa	@temp1	
-callvoid	func		
-=	d	d	
--	0	d	@temp2
-+	@temp2	d	@temp2
-=	d	@temp2	
-*	a[1]	d	@temp3
-/	@temp3	d	@temp3
-+	@temp3	1	@temp3
-pushpara	d		
-pushpara	e		
-call	funa	@temp4	
-+	@temp3	@temp4	@temp3
-+	@temp3	d	@temp3
-+	@temp3	50	@temp3
-=	d	@temp3	
-return	1		
-scanf	d		
-scanf	e		
-printStr	"123"		
-printf	d		
-printStr	"123"		
-printf	d		
-endp	funa		
-proc	funb		
-endp	funb		
-proc	func		
-endp	func		
-proc	fib		
-==	x	1	
-jz	L12:		
-return	1		
-jmp	L13:		
-label	L12:		
-==	x	2	
-jz	L14:		
-return	1		
-jmp	L15:		
-label	L14:		
--	x	1	@temp5
-pushpara	@temp5		
-call	fib	@temp6	
--	x	2	@temp7
-pushpara	@temp7		
-call	fib	@temp8	
-+	@temp6	@temp8	@temp6
-return	@temp6		
-label	L15:		
-label	L13:		
-endp	fib		
-proc	main		
-=	out	0	
+endp	recursion		
+proc	f3		
+=	s[0]	0	
++	s[0]	5	@temp5
+=	s[1]	@temp5	
+=	d[0]	49	
+=	d[1]	50	
 =	i	1	
-label	L17:		
-<	i	10	
-jz	L16:		
-=	c[i]	0	
+=	j	2	
+=	k	-3	
+=	a	d[1]	
++	i	j	@temp6
+-	k	j	@temp7
+*	@temp6	@temp7	@temp6
+-	s[0]	s[1]	@temp8
+-	@temp6	@temp8	@temp6
++	d[0]	j	@temp9
++	@temp9	a	@temp9
+/	@temp6	@temp9	@temp6
+-	0	@temp6	@temp10
+*	@temp10	i	@temp10
+-	0	@temp10	@temp11
+/	a	-3	@temp12
+-	@temp11	@temp12	@temp11
+=	m	@temp11	
+printf	m		
+pushpara	i		
+pushpara	a		
+call	f1	@temp13	
+=	k	@temp13	
+endp	f3		
+proc	main		
+scanf	i		
+scanf	j		
+=	a	97	
+==	i	0	
+jz	L3:		
+printStr	"i=0"		
+jmp	L4:		
+label	L3:		
+printStr	"i!=0"		
+label	L4:		
+!=	j	0	
+jz	L5:		
+printStr	"j!=0"		
+label	L5:		
+=	i	2	
+=	j	0	
+label	L6:		
+-	i	1	@temp14
+=	i	@temp14	
+=	k[j]	i	
++	j	1	@temp15
+=	j	@temp15	
+>	i	0	
+jnz	L6:		
+scanf	j		
+=	i	0	
+label	L8:		
+<	i	j	
+jz	L7:		
++	i	j	@temp16
+printf	@temp16		
 +	i	1	i
-jmp	L17:		
-label	L16:		
-scanf	in1		
-scanf	in2		
-scanf	in3		
-<	in1	5	
-jz	L18:		
-=	c[9]	in1	
-label	L18:		
-*	3	4	@temp9
-/	@temp9	12	@temp9
-*	3	@temp9	@temp9
-+	@temp9	6	@temp9
-=	out	c[@temp9]	
-printf	out		
-*	in2	in3	@temp10
-+	out	@temp10	@temp10
-=	out	@temp10	
-printf	out		
-pushpara	in1		
-call	fib	@temp11	
-+	out	@temp11	@temp11
-=	out	@temp11	
-printf	out		
+jmp	L8:		
+label	L7:		
++	j	i	@temp17
+pushpara	@temp17		
+pushpara	97		
+call	f1	@temp18	
+=	i	@temp18	
+printf	i		
+pushpara	i		
+pushpara	99		
+call	f2	@temp19	
+=	a	@temp19	
+printf	a		
+callvoid	f3		
+pushpara	1		
+call	recursion	@temp20	
+=	i	@temp20	
+printf	i		
+pushpara	3		
+call	recursion	@temp21	
+=	i	@temp21	
+printf	i		
+return			
 endp	main		

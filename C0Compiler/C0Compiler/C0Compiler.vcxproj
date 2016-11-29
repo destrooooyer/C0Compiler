@@ -150,6 +150,7 @@
     <ClCompile Include="intermediate_code_generator.cpp" />
     <ClCompile Include="lexical_analyzer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="optimizer.cpp" />
     <ClCompile Include="syntax_analyzer.cpp" />
     <ClCompile Include="table.cpp" />
     <ClCompile Include="util.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="intermediate_code_generator.h" />
     <ClInclude Include="lexical_analyzer.h" />
+    <ClInclude Include="optimizer.h" />
     <ClInclude Include="syntax_analyzer.h" />
     <ClInclude Include="table.h" />
     <ClInclude Include="util.h" />

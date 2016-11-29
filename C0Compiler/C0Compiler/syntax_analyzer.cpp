@@ -1985,6 +1985,8 @@ bool SyntaxAnalyzer::returnStatement()
 		}
 
 	}
+	else
+		imCodeGenerator.genReturn("");
 
 	printInfo("This is a <·µ»ØÓï¾ä>");
 	return true;

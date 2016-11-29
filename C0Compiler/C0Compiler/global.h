@@ -6,6 +6,7 @@
 #include "table.h"
 #include "intermediate_code_generator.h"
 #include "asm_generator.h"
+#include "optimizer.h"
 
 #include <fstream>
 #include <string>
