@@ -7,8 +7,10 @@ scanf proto c
 
 
 .data
-$formatD  byte "%d", 0
-$formatC  byte "%c", 0
+$formatD  byte "%d ", 0
+$formatC  byte "%c ", 0
+$formatDNewLine  byte "%d", 0AH, 0
+$formatCNewLine  byte "%c", 0AH, 0
 $_x dword 0
 $b dword 10
 $c dword -10
@@ -94,7 +96,7 @@ call printf
 add esp, 4
 mov eax, dword ptr [ebp-20]
 push eax
-lea edx, $formatD
+lea edx, $formatDNewLine
 push edx
 mov dword ptr [ebp-20], eax
 mov dword ptr [ebp-24], ecx
@@ -284,7 +286,7 @@ cmp eax, ebx
 jl L16
 mov ebx, dword ptr [ebp-100+eax*4]
 push ebx
-lea ecx, $formatC
+lea ecx, $formatCNewLine
 push ecx
 mov dword ptr [ebp-60], eax
 call printf
@@ -302,7 +304,7 @@ call scanf
 add esp, 8
 lea eax, dword ptr [$_x]
 push eax
-lea eax, [$formatD]
+lea eax, [$formatC]
 push eax
 call scanf
 add esp, 8
@@ -312,7 +314,7 @@ call printf
 add esp, 4
 mov eax, dword ptr [ebp-60]
 push eax
-lea ebx, $formatD
+lea ebx, $formatDNewLine
 push ebx
 mov dword ptr [ebp-60], eax
 call printf
@@ -323,7 +325,7 @@ call printf
 add esp, 4
 mov eax, dword ptr [$_x]
 push eax
-lea ebx, $formatC
+lea ebx, $formatCNewLine
 push ebx
 mov dword ptr [$_x], eax
 call printf
@@ -336,7 +338,7 @@ push dword ptr [ebp-60]
 call abs
 add esp, 4
 push eax
-lea ebx, $formatD
+lea ebx, $formatDNewLine
 push ebx
 mov dword ptr [ebp-16], eax
 call printf
@@ -392,7 +394,7 @@ cmp eax, ebx
 jne L22
 mov ebx, dword ptr [ebp-60]
 push ebx
-lea ecx, $formatD
+lea ecx, $formatDNewLine
 push ecx
 mov dword ptr [ebp-32], eax
 call printf
@@ -422,12 +424,12 @@ mov esi, 5
 idiv esi
 sub edi, eax
 mov edx, dword ptr [ebp-52]
-mov edx, -135
+mov edx, -15
 add edi, edx
 mov dword ptr [ebp-60], edi
 mov ebx, dword ptr [ebp-60]
 push ebx
-lea esi, $formatD
+lea esi, $formatDNewLine
 push esi
 mov dword ptr [ebp-48], eax
 mov dword ptr [ebp-40], ecx

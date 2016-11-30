@@ -41,6 +41,7 @@ bool util::isChr(char chr)
 
 int util::parseInt(string str)
 {
+	return stoi(str);
 	int temp = 0;
 	for (int i = 0; i < str.length(); i++)
 	{

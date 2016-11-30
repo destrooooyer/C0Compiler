@@ -51,8 +51,10 @@ void AsmGenerator::genData()
 	asmCodes.push_back(".data");
 	map<string, TableItem> globleTable = table.getTable("globle");
 
-	asmCodes.push_back("$formatD  byte \"%d\", 0");
-	asmCodes.push_back("$formatC  byte \"%c\", 0");
+	asmCodes.push_back("$formatD  byte \"%d \", 0");
+	asmCodes.push_back("$formatC  byte \"%c \", 0");
+	asmCodes.push_back("$formatDNewLine  byte \"%d\", 0AH, 0");
+	asmCodes.push_back("$formatCNewLine  byte \"%c\", 0AH, 0");
 	for (map<string, TableItem>::iterator iter = globleTable.begin(); iter != globleTable.end(); iter++)
 	{
 		if (iter->second.getKind() == "const" ||
@@ -463,9 +465,9 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 		if (!table.check(funcName, name))
 			funcName = "globle";
 		if (table.get(funcName, name).getType() == "char")
-			asmCodes.push_back("lea " + tempReg + ", $formatC");
+			asmCodes.push_back("lea " + tempReg + ", $formatCNewLine");
 		else
-			asmCodes.push_back("lea " + tempReg + ", $formatD");
+			asmCodes.push_back("lea " + tempReg + ", $formatDNewLine");
 	}
 
 	asmCodes.push_back("push " + tempReg);
@@ -499,7 +501,22 @@ void AsmGenerator::genScanf(string funcName, int loc)
 	tempReg = regManager.getReg();
 	if (tempReg == "*")
 		tempReg = prepareReg(vector<string>());
-	asmCodes.push_back("lea " + tempReg + ", [$formatD]");
+
+
+	string name;
+	if (util::isArr(imCodes[loc].arg1))
+		name = util::getArrName(imCodes[loc].arg1);
+	else
+		name = imCodes[loc].arg1;
+	if (!table.check(funcName, name))
+		funcName = "globle";
+	if (table.get(funcName, name).getType() == "char")
+		asmCodes.push_back("lea " + tempReg + ", [$formatC]");
+	else
+		asmCodes.push_back("lea " + tempReg + ", [$formatD]");
+
+
+	//asmCodes.push_back("lea " + tempReg + ", [$formatD]");
 	asmCodes.push_back("push " + tempReg);
 
 	if (!regManager.isAvailable("eax"))
