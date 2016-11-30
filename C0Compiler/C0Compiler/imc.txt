@@ -1,161 +1,88 @@
-proc	abs		
->	a	0	
+proc	fib		
+==	fibArr[x]	0	
 jz	L1:		
-return	a		
-jmp	L2:		
+-	x	1	@temp1
+pushpara	@temp1		
+call	fib	@temp2	
+-	x	2	@temp3
+pushpara	@temp3		
+call	fib	@temp4	
++	@temp2	@temp4	@temp2
+=	fibArr[x]	@temp2	
 label	L1:		
--	0	a	@temp1
-return	@temp1		
-label	L2:		
-endp	abs		
-proc	factor		
-pushpara	a		
-call	abs	@temp2	
-=	i	@temp2	
+return	fibArr[x]		
+endp	fib		
+proc	sort		
+=	i	0	
 label	L3:		
-/	a	i	@temp3
-=	j	@temp3	
-*	i	j	@temp4
-==	a	@temp4	
-jz	L4:		
-printStr	"factor "		
-printf	i		
-label	L4:		
--	i	1	@temp5
-=	i	@temp5	
->	i	0	
-jnz	L3:		
-endp	factor		
-proc	oddif		
-=	i	2	
-pushpara	a		
-call	abs	@temp6	
-=	a	@temp6	
-==	a	0	
-jz	L5:		
-return	0		
+<	i	n	
+jz	L2:		
++	i	1	@temp5
+=	j	@temp5	
 label	L5:		
-==	a	1	
+<	j	n	
+jz	L4:		
+>	globalArr[i]	globalArr[j]	
 jz	L6:		
-return	1		
+=	temp	globalArr[i]	
+=	globalArr[i]	globalArr[j]	
+=	globalArr[j]	temp	
 label	L6:		
++	j	1	j
+jmp	L5:		
+label	L4:		
++	i	1	i
+jmp	L3:		
+label	L2:		
+endp	sort		
+proc	main		
+=	fibArr[0]	1	
+=	fibArr[1]	1	
+pushpara	9		
+call	fib	@temp6	
+=	i	0	
+printStr	"fib[0-9] are as follows:"		
 label	L7:		
--	a	i	@temp7
-=	a	@temp7	
->	a	1	
+printf	fibArr[i]		
++	i	1	@temp7
+=	i	@temp7	
+<	i	10	
 jnz	L7:		
-!=	a	0	
+printStr	"please input a number n"		
+scanf	n		
+>	n	10	
 jz	L8:		
-return	1		
-jmp	L9:		
+=	n	10	
+printStr	"n is too large, so it is set to 10"		
 label	L8:		
-return	0		
-label	L9:		
-endp	oddif		
-proc	fibonacci		
-==	a	1	
-jz	L10:		
-return	1		
+printStr	"please input an array of n ints"		
+=	i	0	
 label	L10:		
-==	a	2	
+<	i	n	
+jz	L9:		
+scanf	temp		
+=	globalArr[i]	temp	
++	i	1	i
+jmp	L10:		
+label	L9:		
+callvoid	sort		
+=	i	0	
+label	L12:		
+<	i	n	
 jz	L11:		
-return	2		
+printf	globalArr[i]		
++	i	1	i
 jmp	L12:		
 label	L11:		
--	a	1	@temp8
-pushpara	@temp8		
-call	fibonacci	@temp9	
--	a	2	@temp10
-pushpara	@temp10		
-call	fibonacci	@temp11	
-+	@temp9	@temp11	@temp9
-return	@temp9		
-label	L12:		
-endp	fibonacci		
-proc	main		
-=	temp	43	
-=	ch	97	
-=	i	0	
-label	L13:		
-<=	ch	31	
-jz	L14:		
-=	lstr[i]	48	
-+	i	1	@temp12
-=	i	@temp12	
-jmp	L15:		
-label	L14:		
-=	lstr[i]	ch	
-+	i	1	@temp13
-=	i	@temp13	
-label	L15:		
-+	ch	1	@temp14
-=	ch	@temp14	
-<	i	10	
-jnz	L13:		
-=	i	9	
-label	L17:		
->=	i	0	
-jz	L16:		
-printf	lstr[i]		
--	i	1	i
-jmp	L17:		
-label	L16:		
-scanf	i		
-scanf	_x		
-printStr	"input is "		
-printf	i		
-printStr	"input is "		
-printf	_x		
-printStr	"test abs "		
-pushpara	i		
-call	abs	@temp15	
-printf	@temp15		
-printStr	"test factor "		
-pushpara	i		
-callvoid	factor		
-=	i	0	
-label	L19:		
-<	i	10	
-jz	L18:		
-+	i	1	@temp16
-pushpara	@temp16		
-call	fibonacci	@temp17	
-=	fibs[i]	@temp17	
-+	i	1	i
-jmp	L19:		
-label	L18:		
-=	i	0	
-label	L20:		
-pushpara	fibs[i]		
-callvoid	factor		
-+	i	1	@temp18
-=	i	@temp18	
-<	i	6	
-jnz	L20:		
-=	i	0	
-label	L21:		
-pushpara	fibs[i]		
-call	oddif	@temp19	
-==	@temp19	1	
-jz	L22:		
-printf	i		
-label	L22:		
-+	i	1	@temp20
-=	i	@temp20	
-<	i	10	
-jnz	L21:		
--	10	8	@temp21
-*	10	fibs[fibs[@temp21]]	@temp22
-*	@temp22	98	@temp22
-+	-10	@temp22	@temp22
--	@temp22	10	@temp22
-+	@temp22	1	@temp22
-/	10	5	@temp23
--	@temp22	@temp23	@temp22
-*	-3	5	@temp24
-+	@temp22	@temp24	@temp22
-=	i	@temp22	
-printf	i		
-printStr	"program end"		
-return			
+/	20	10	@temp8
++	@temp8	50	@temp8
+-	3	43	@temp9
+/	4	3	@temp10
+*	@temp9	@temp10	@temp9
++	432	@temp9	@temp9
+-	@temp9	5	@temp9
++	@temp9	3	@temp9
+-	@temp8	@temp9	@temp8
+=	n	@temp8	
+printf	n		
 endp	main		

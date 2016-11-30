@@ -11,181 +11,25 @@ $formatD  byte "%d ", 0
 $formatC  byte "%c ", 0
 $formatDNewLine  byte "%d", 0AH, 0
 $formatCNewLine  byte "%c", 0AH, 0
-$_x dword 0
-$b dword 10
-$c dword -10
-$d dword 10
-$fibs dword 10 dup(0)
-$str dword 98
-$str0 byte "factor ", 0
-$str1 byte "input is ", 0
-$str2 byte "input is ", 0
-$str3 byte "test abs ", 0
-$str4 byte "test factor ", 0
-$str5 byte "program end", 0
+$constA dword 10
+$constB dword 20
+$constC dword 50
+$fibArr dword 10 dup(0)
+$globalArr dword 20 dup(0)
+$i dword 0
+$n dword 0
+$str0 byte "fib[0-9] are as follows:", 0AH, 0
+$str1 byte "please input a number n", 0AH, 0
+$str2 byte "n is too large, so it is set to 10", 0AH, 0
+$str3 byte "please input an array of n ints", 0AH, 0
 
 
 .code
 
-; abs
-abs proc
+; fib
+fib proc
 
-; abs prologue
-push ebp
-mov ebp, esp
-sub esp, 8
-push esi
-push edi
-push ebx
-
-; abs body
-mov eax, dword ptr [ebp+8]
-mov ebx, 0
-cmp eax, ebx
-jle L1
-jmp @abs_epilogue
-jmp L2
-L1:
-mov eax, dword ptr [ebp+8]
-sub eax, 0
-jmp @abs_epilogue
-L2:
-
-; abs epilogue
-@abs_epilogue:
-pop ebx
-pop edi
-pop esi
-mov esp, ebp
-pop ebp
-ret
-abs endp
-
-; factor
-factor proc
-
-; factor prologue
-push ebp
-mov ebp, esp
-sub esp, 28
-push esi
-push edi
-push ebx
-
-; factor body
-push dword ptr [ebp+8]
-call abs
-add esp, 4
-mov dword ptr [ebp-20], eax
-L3:
-mov eax, dword ptr [ebp+8]
-cdq
-mov ebx, dword ptr [ebp-20]
-idiv ebx
-mov dword ptr [ebp-24], eax
-mov ecx, dword ptr [ebp-24]
-mov dword ptr [ebp-20], ebx
-imul ebx, ecx
-mov edi, dword ptr [ebp+8]
-cmp edi, ebx
-jne L4
-lea edx, $str0
-push edx
-mov dword ptr [ebp-8], eax
-call printf
-add esp, 4
-mov eax, dword ptr [ebp-20]
-push eax
-lea edx, $formatDNewLine
-push edx
-mov dword ptr [ebp-20], eax
-mov dword ptr [ebp-24], ecx
-call printf
-add esp, 8
-L4:
-mov eax, dword ptr [ebp-20]
-sub eax, 1
-mov dword ptr [ebp-20], eax
-mov ebx, dword ptr [ebp-20]
-mov ecx, 0
-cmp ebx, ecx
-jg L3
-
-; factor epilogue
-@factor_epilogue:
-pop ebx
-pop edi
-pop esi
-mov esp, ebp
-pop ebp
-ret
-factor endp
-
-; oddif
-oddif proc
-
-; oddif prologue
-push ebp
-mov ebp, esp
-sub esp, 16
-push esi
-push edi
-push ebx
-
-; oddif body
-mov dword ptr [ebp-12], 2
-push dword ptr [ebp+8]
-call abs
-add esp, 4
-mov dword ptr [ebp+8], eax
-mov ebx, dword ptr [ebp+8]
-mov ecx, 0
-cmp ebx, ecx
-jne L5
-mov eax, 0
-jmp @oddif_epilogue
-L5:
-mov eax, dword ptr [ebp+8]
-mov ebx, 1
-cmp eax, ebx
-jne L6
-mov eax, 1
-jmp @oddif_epilogue
-L6:
-L7:
-mov eax, dword ptr [ebp+8]
-mov ebx, dword ptr [ebp-12]
-sub eax, ebx
-mov dword ptr [ebp+8], eax
-mov ecx, dword ptr [ebp+8]
-mov edi, 1
-cmp ecx, edi
-jg L7
-mov edi, 0
-cmp ecx, edi
-je L8
-mov eax, 1
-jmp @oddif_epilogue
-jmp L9
-L8:
-mov eax, 0
-jmp @oddif_epilogue
-L9:
-
-; oddif epilogue
-@oddif_epilogue:
-pop ebx
-pop edi
-pop esi
-mov esp, ebp
-pop ebp
-ret
-oddif endp
-
-; fibonacci
-fibonacci proc
-
-; fibonacci prologue
+; fib prologue
 push ebp
 mov ebp, esp
 sub esp, 20
@@ -193,49 +37,107 @@ push esi
 push edi
 push ebx
 
-; fibonacci body
-mov eax, dword ptr [ebp+8]
-mov ebx, 1
-cmp eax, ebx
-jne L10
-mov eax, 1
-jmp @fibonacci_epilogue
-L10:
-mov eax, dword ptr [ebp+8]
-mov ebx, 2
-cmp eax, ebx
-jne L11
-mov eax, 2
-jmp @fibonacci_epilogue
-jmp L12
-L11:
-mov eax, dword ptr [ebp+8]
-sub eax, 1
-push eax
-mov dword ptr [ebp-12], eax
-call fibonacci
-add esp, 4
+; fib body
 mov ebx, dword ptr [ebp+8]
-sub ebx, 2
+mov eax, dword ptr [$fibArr+ebx*4]
+mov ecx, 0
+cmp eax, ecx
+jne L1
+mov dword ptr [ebp+8], ebx
+sub ebx, 1
 push ebx
-mov dword ptr [ebp-16], eax
-call fibonacci
+mov ecx, dword ptr [ebp+8]
+mov dword ptr [$fibArr+ecx*4], eax
+mov dword ptr [ebp+8], ecx
+call fib
 add esp, 4
-mov ecx, dword ptr [ebp-16]
+mov ecx, dword ptr [ebp+8]
+sub ecx, 2
+push ecx
+mov dword ptr [ebp-8], eax
+mov dword ptr [ebp-12], ecx
+call fib
+add esp, 4
+mov ecx, dword ptr [ebp-8]
 add ecx, eax
-mov eax, ecx
-jmp @fibonacci_epilogue
-L12:
+mov edi, dword ptr [ebp+8]
+mov dword ptr [$fibArr+edi*4], ecx
+L1:
+mov ebx, dword ptr [ebp+8]
+mov eax, dword ptr [$fibArr+ebx*4]
+jmp @fib_epilogue
 
-; fibonacci epilogue
-@fibonacci_epilogue:
+; fib epilogue
+@fib_epilogue:
 pop ebx
 pop edi
 pop esi
 mov esp, ebp
 pop ebp
 ret
-fibonacci endp
+fib endp
+
+; sort
+sort proc
+
+; sort prologue
+push ebp
+mov ebp, esp
+sub esp, 20
+push esi
+push edi
+push ebx
+
+; sort body
+mov dword ptr [ebp-8], 0
+L3:
+mov eax, dword ptr [ebp-8]
+mov ebx, dword ptr [$n]
+cmp eax, ebx
+jge L2
+mov dword ptr [ebp-8], eax
+add eax, 1
+mov dword ptr [ebp-12], eax
+L5:
+mov eax, dword ptr [ebp-12]
+mov ebx, dword ptr [$n]
+cmp eax, ebx
+jge L4
+mov edi, dword ptr [ebp-8]
+mov ecx, dword ptr [$globalArr+edi*4]
+mov edx, dword ptr [$globalArr+eax*4]
+cmp ecx, edx
+jle L6
+mov esi, dword ptr [$globalArr+edi*4]
+mov dword ptr [ebp-16], esi
+mov dword ptr [ebp-12], eax
+mov dword ptr [$n], ebx
+mov ebx, dword ptr [ebp-12]
+mov eax, dword ptr [$globalArr+ebx*4]
+mov dword ptr [$globalArr+edi*4], eax
+mov ecx, dword ptr [ebp-16]
+mov dword ptr [$globalArr+ebx*4], ecx
+L6:
+mov eax, dword ptr [ebp-12]
+add eax, 1
+mov dword ptr [ebp-12], eax
+jmp L5
+L4:
+mov eax, dword ptr [ebp-8]
+add eax, 1
+mov dword ptr [ebp-8], eax
+jmp L3
+L2:
+
+; sort epilogue
+@sort_epilogue:
+pop ebx
+pop edi
+pop esi
+mov esp, ebp
+pop ebp
+ret
+sort endp
 
 ; main
 main proc
@@ -243,204 +145,133 @@ main proc
 ; main prologue
 push ebp
 mov ebp, esp
-sub esp, 108
+sub esp, 32
 push esi
 push edi
 push ebx
 
 ; main body
-mov dword ptr [ebp-104], 43
-mov dword ptr [ebp-56], 97
-mov dword ptr [ebp-60], 0
-L13:
-mov eax, dword ptr [ebp-56]
-mov ebx, 31
-cmp eax, ebx
-jg L14
-mov ebx, dword ptr [ebp-60]
-mov dword ptr [ebp-100+ebx*4], 48
-mov dword ptr [ebp-60], ebx
-add ebx, 1
-mov dword ptr [ebp-60], ebx
-jmp L15
-L14:
-mov eax, dword ptr [ebp-60]
-mov ebx, dword ptr [ebp-56]
-mov dword ptr [ebp-100+eax*4], ebx
-mov dword ptr [ebp-60], eax
-add eax, 1
-mov dword ptr [ebp-60], eax
-L15:
-mov eax, dword ptr [ebp-56]
-add eax, 1
-mov dword ptr [ebp-56], eax
-mov ebx, dword ptr [ebp-60]
-mov ecx, 10
-cmp ebx, ecx
-jl L13
-mov dword ptr [ebp-60], 9
-L17:
-mov eax, dword ptr [ebp-60]
-mov ebx, 0
-cmp eax, ebx
-jl L16
-mov ebx, dword ptr [ebp-100+eax*4]
+mov dword ptr [$fibArr+0*4], 1
+mov dword ptr [$fibArr+1*4], 1
+push 9
+call fib
+add esp, 4
+mov dword ptr [ebp-24], 0
+lea ebx, $str0
 push ebx
-lea ecx, $formatCNewLine
+mov dword ptr [ebp-8], eax
+call printf
+add esp, 4
+L7:
+mov ebx, dword ptr [ebp-24]
+mov eax, dword ptr [$fibArr+ebx*4]
+push eax
+lea ecx, $formatDNewLine
 push ecx
-mov dword ptr [ebp-60], eax
+mov dword ptr [$fibArr+ebx*4], eax
 call printf
 add esp, 8
-mov eax, dword ptr [ebp-60]
-sub eax, 1
-mov dword ptr [ebp-60], eax
-jmp L17
-L16:
-lea eax, dword ptr [ebp-60]
+mov dword ptr [ebp-24], ebx
+add ebx, 1
+mov dword ptr [ebp-24], ebx
+mov eax, dword ptr [ebp-24]
+mov ecx, 10
+cmp eax, ecx
+jl L7
+lea ecx, $str1
+push ecx
+mov dword ptr [ebp-24], eax
+call printf
+add esp, 4
+lea eax, dword ptr [$n]
 push eax
 lea eax, [$formatD]
 push eax
 call scanf
 add esp, 8
-lea eax, dword ptr [$_x]
-push eax
-lea eax, [$formatC]
-push eax
-call scanf
-add esp, 8
-lea eax, $str1
-push eax
-call printf
-add esp, 4
-mov eax, dword ptr [ebp-60]
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [ebp-60], eax
-call printf
-add esp, 8
+mov eax, dword ptr [$n]
+mov ecx, 10
+cmp eax, ecx
+jle L8
+mov dword ptr [$n], 10
 lea eax, $str2
 push eax
 call printf
 add esp, 4
-mov eax, dword ptr [$_x]
-push eax
-lea ebx, $formatCNewLine
-push ebx
-mov dword ptr [$_x], eax
-call printf
-add esp, 8
+L8:
 lea eax, $str3
 push eax
 call printf
 add esp, 4
-push dword ptr [ebp-60]
-call abs
-add esp, 4
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [ebp-16], eax
-call printf
-add esp, 8
-lea eax, $str4
-push eax
-call printf
-add esp, 4
-push dword ptr [ebp-60]
-call factor
-add esp, 4
-mov dword ptr [ebp-60], 0
-L19:
-mov eax, dword ptr [ebp-60]
-mov ebx, 10
+mov dword ptr [ebp-24], 0
+L10:
+mov eax, dword ptr [ebp-24]
+mov ebx, dword ptr [$n]
 cmp eax, ebx
-jge L18
-mov dword ptr [ebp-60], eax
-add eax, 1
-push eax
-mov dword ptr [ebp-20], eax
-call fibonacci
-add esp, 4
-mov ebx, dword ptr [ebp-60]
-mov dword ptr [$fibs+ebx*4], eax
-add ebx, 1
-mov dword ptr [ebp-60], ebx
-jmp L19
-L18:
-mov dword ptr [ebp-60], 0
-L20:
-mov eax, dword ptr [ebp-60]
-push dword ptr [$fibs+eax*4]
-mov dword ptr [ebp-60], eax
-call factor
-add esp, 4
-mov eax, dword ptr [ebp-60]
-add eax, 1
-mov dword ptr [ebp-60], eax
-mov ebx, dword ptr [ebp-60]
-mov ecx, 6
-cmp ebx, ecx
-jl L20
-mov dword ptr [ebp-60], 0
-L21:
-mov eax, dword ptr [ebp-60]
-push dword ptr [$fibs+eax*4]
-mov dword ptr [ebp-60], eax
-call oddif
-add esp, 4
-mov ebx, 1
-cmp eax, ebx
-jne L22
-mov ebx, dword ptr [ebp-60]
-push ebx
-lea ecx, $formatDNewLine
+jge L9
+lea ecx, dword ptr [ebp-28]
 push ecx
-mov dword ptr [ebp-32], eax
-call printf
+lea ecx, [$formatD]
+push ecx
+mov dword ptr [ebp-24], eax
+call scanf
 add esp, 8
-L22:
-mov eax, dword ptr [ebp-60]
+mov eax, dword ptr [ebp-24]
+mov ecx, dword ptr [ebp-28]
+mov dword ptr [$globalArr+eax*4], ecx
 add eax, 1
-mov dword ptr [ebp-60], eax
-mov ebx, dword ptr [ebp-60]
-mov ecx, 10
-cmp ebx, ecx
-jl L21
-mov ecx, dword ptr [ebp-40]
-mov ecx, 2
-mov edx, dword ptr [$fibs+ecx*4]
-mov edi, dword ptr [$fibs+edx*4]
-imul edi, 10
-imul edi, 98
-add edi, -10
-sub edi, 10
-add edi, 1
-mov dword ptr [ebp-36], eax
-mov dword ptr [$fibs+ecx*4], edx
-mov eax, 10
-cdq
-mov esi, 5
-idiv esi
-sub edi, eax
-mov edx, dword ptr [ebp-52]
-mov edx, -15
-add edi, edx
-mov dword ptr [ebp-60], edi
-mov ebx, dword ptr [ebp-60]
-push ebx
-lea esi, $formatDNewLine
-push esi
-mov dword ptr [ebp-48], eax
-mov dword ptr [ebp-40], ecx
-mov dword ptr [ebp-52], edx
+mov dword ptr [ebp-24], eax
+jmp L10
+L9:
+call sort
+add esp, 0
+mov dword ptr [ebp-24], 0
+L12:
+mov eax, dword ptr [ebp-24]
+mov ebx, dword ptr [$n]
+cmp eax, ebx
+jge L11
+mov ecx, dword ptr [$globalArr+eax*4]
+push ecx
+lea edi, $formatDNewLine
+push edi
+mov dword ptr [ebp-24], eax
+mov eax, dword ptr [ebp-24]
+mov dword ptr [$globalArr+eax*4], ecx
 call printf
 add esp, 8
-lea eax, $str5
-push eax
+mov eax, dword ptr [ebp-24]
+add eax, 1
+mov dword ptr [ebp-24], eax
+jmp L12
+L11:
+mov eax, 20
+cdq
+mov ebx, 10
+idiv ebx
+add eax, 50
+mov ebx, dword ptr [ebp-20]
+mov ebx, -40
+mov dword ptr [ebp-16], eax
+mov eax, 4
+cdq
+mov ecx, 3
+idiv ecx
+imul ebx, eax
+add ebx, 432
+sub ebx, 5
+add ebx, 3
+mov ecx, dword ptr [ebp-16]
+sub ecx, ebx
+mov dword ptr [$n], ecx
+mov edi, dword ptr [$n]
+push edi
+lea edx, $formatDNewLine
+push edx
+mov dword ptr [ebp-4], eax
+mov dword ptr [ebp-16], ecx
 call printf
-add esp, 4
-jmp @main_epilogue
+add esp, 8
 
 ; main epilogue
 @main_epilogue:

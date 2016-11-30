@@ -80,7 +80,7 @@ void AsmGenerator::genData()
 	}
 	for (map<string, string>::iterator iter = strs.begin(); iter != strs.end(); iter++)
 	{
-		asmCodes.push_back(iter->first + " byte " + iter->second + ", 0");
+		asmCodes.push_back(iter->first + " byte " + iter->second + ", 0AH, 0");
 	}
 }
 
@@ -180,7 +180,6 @@ string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regO
 
 void AsmGenerator::genSave(string regName, vector<string> regOccupied)
 {
-	regManager.save(regName);
 	string funcName = regManager.getRegContent(regName).first;
 	string name = regManager.getRegContent(regName).second;
 
@@ -206,6 +205,7 @@ void AsmGenerator::genSave(string regName, vector<string> regOccupied)
 		//this symble is not in reg any more
 		addrDescriptor.setRegAddr(funcName, name, "*");
 	}
+	regManager.save(regName);
 }
 
 void AsmGenerator::genLoad(std::string funcName, std::string name, vector<string> regOccupied)
@@ -233,6 +233,7 @@ string AsmGenerator::prepareReg(vector<string>regOccupied)
 		string tempFuncName = regManager.getRegContent(iter->first).first;
 		if (iter->second == true)
 		{
+			regOccupied.push_back(iter->first);
 			genSave(iter->first, regOccupied);
 			result = iter->first;
 			break;
@@ -278,6 +279,7 @@ string AsmGenerator::getAddrReg(string funcName, string name, vector<string> reg
 			}
 
 			regManager.load(temp, funcName, name);
+			regOccupied.push_back(temp);
 			string tempInstr = "mov ";
 			tempInstr += temp + ", ";
 			tempInstr += getAddrRam(funcName, name, regOccupied);
@@ -436,9 +438,21 @@ void AsmGenerator::genAssign(string funcName, int loc)
 		regManager.save(regTemp);
 		addrDescriptor.setRegAddr(funcName, imCodes[loc].arg1, "*");
 	}
+	else
+	{
+		regManager.clearSym(funcName, imCodes[loc].arg1);
+	}
 
 	// 	if (util::isArr(imCodes[loc].arg1))
 	// 		genSave(arg1, vector<string>());
+}
+
+void AsmGenerator::clearEACDX()
+{
+	regManager.save("eax");
+	regManager.save("ecx");
+	regManager.save("edx");
+	addrDescriptor.clearEACDX();
 }
 
 void AsmGenerator::genPrintf(string funcName, int loc)
@@ -478,6 +492,8 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 		genSave("ecx", vector<string>());
 	if (!regManager.isAvailable("edx"))
 		genSave("edx", vector<string>());
+
+	clearEACDX();
 
 	asmCodes.push_back("call printf");
 	asmCodes.push_back("add esp, 8");
@@ -526,6 +542,8 @@ void AsmGenerator::genScanf(string funcName, int loc)
 	if (!regManager.isAvailable("edx"))
 		genSave("edx", vector<string>());
 
+	clearEACDX();
+
 	asmCodes.push_back("call scanf");
 	asmCodes.push_back("add esp, 8");
 
@@ -541,6 +559,12 @@ void AsmGenerator::genPrintStr(int loc)
 
 	if (!regManager.isAvailable("eax"))
 		genSave("eax", vector<string>());
+	if (!regManager.isAvailable("ecx"))
+		genSave("ecx", vector<string>());
+	if (!regManager.isAvailable("edx"))
+		genSave("edx", vector<string>());
+
+	clearEACDX();
 
 	asmCodes.push_back("call printf");
 	asmCodes.push_back("add esp, 4");
@@ -582,6 +606,9 @@ void AsmGenerator::genCallVoid(int loc)
 		genSave("ecx", vector<string>());
 	if (!regManager.isAvailable("edx"))
 		genSave("edx", vector<string>());
+
+	clearEACDX();
+
 	asmCodes.push_back("call " + funcName);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 	paraCount = 0;
@@ -595,6 +622,9 @@ void AsmGenerator::genCall(string funcName, int loc)
 		genSave("ecx", vector<string>());
 	if (!regManager.isAvailable("edx"))
 		genSave("edx", vector<string>());
+
+	clearEACDX();
+
 	asmCodes.push_back("call " + imCodes[loc].arg1);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 	regManager.load("eax", funcName, imCodes[loc].arg2);
@@ -755,17 +785,18 @@ void AsmGenerator::genStatement(int loc, string funcName)
 		//prepare edx and eax
 		if (!regManager.isAvailable("eax"))
 		{
-			regManager.save("eax");
-			genSave("eax", vector<string>());
+			genSave("eax", regOccupied);
 		}
+		regManager.load("eax", funcName, "*");
+		regOccupied.push_back("eax");
 		if (!regManager.isAvailable("edx"))
 		{
-			regManager.save("edx");
-			genSave("edx", vector<string>());
+			genSave("edx", regOccupied);
 		}
 		////0 -> edx
 		//asmCodes.push_back("and edx, 0");
 		regManager.load("edx", funcName, "*");
+		regOccupied.push_back("edx");
 		//arg1 -> eax
 		string tempInstr = "mov ";
 		tempInstr += "eax, ";
@@ -781,11 +812,11 @@ void AsmGenerator::genStatement(int loc, string funcName)
 				tempInstr += getAddrRam(funcName, imCodes[loc].arg1, regOccupied);
 		}
 		asmCodes.push_back(tempInstr);
-		regManager.load("eax", funcName, "*");
+		//regManager.load("eax", funcName, "*");
 		asmCodes.push_back("cdq");
 		//idiv arg2
-		regOccupied.push_back("eax");
-		regOccupied.push_back("edx");
+		//regOccupied.push_back("eax");
+		//regOccupied.push_back("edx");
 		string arg;
 		//		if (util::isnumber(imCodes[loc].arg2[0]))
 		//			arg = imCodes[loc].arg2;
@@ -956,6 +987,18 @@ bool RegManager::isAvailable(string regName)
 		return regAvailability[regName];
 }
 
+void RegManager::clearSym(string funcName, string name)
+{
+	for (map<string, pair<string, string>>::iterator i = regContent.begin(); i != regContent.end(); i++)
+	{
+		if (i->second.first == funcName&&
+			i->second.second == name)
+		{
+			save(i->first);
+		}
+	}
+}
+
 pair<string, string> RegManager::getRegContent(string regName)
 {
 	if (regContent.count(regName))
@@ -1039,6 +1082,20 @@ void AddrDescriptor::reset()
 	{
 		for (map<string, string>::iterator i = iter->second.begin(); i != iter->second.end(); i++)
 			i->second = "*";
+	}
+}
+
+void AddrDescriptor::clearEACDX()
+{
+	for (map<string, map<string, string>>::iterator iter = addrReg.begin(); iter != addrReg.end(); iter++)
+	{
+		for (map<string, string>::iterator i = iter->second.begin(); i != iter->second.end(); i++)
+		{
+			if (i->second == "eax" ||
+				i->second == "ecx" ||
+				i->second == "edx")
+				i->second = "*";
+		}
 	}
 }
 

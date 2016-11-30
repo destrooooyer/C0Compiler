@@ -19,6 +19,7 @@ public:
 	void save(std::string regName);
 	void load(std::string regName, std::string funcName, std::string symName);
 	void reset();
+	void clearSym(std::string funcName,std::string name);
 
 private:
 	std::map<std::string, bool> regAvailability;
@@ -37,6 +38,7 @@ public:
 	void setRegAddr(std::string funcName, std::string name, std::string regName);
 	void printAddrRam();
 	void reset();
+	void clearEACDX();
 private:
 	std::map<std::string, std::map<std::string, std::string>> addrReg;
 	std::map<std::string, std::map<std::string, int>> addrRam;
@@ -90,6 +92,8 @@ private:
 
 	void getStrings();
 	void genHeader();
+
+	void clearEACDX();
 
 };
 
