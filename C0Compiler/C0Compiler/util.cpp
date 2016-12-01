@@ -68,6 +68,8 @@ string util::int2string(int in)
 
 bool util::isArr(string str)
 {
+	if (isnumber(str[0]))
+		return false;
 	if (str[str.length() - 1] == ']')
 		return true;
 	else

@@ -35,54 +35,110 @@ label	L4:
 jmp	L3:		
 label	L2:		
 endp	sort		
+proc	isPrime		
+==	x	1	
+jz	L7:		
+return	0		
+label	L7:		
+==	x	2	
+jz	L8:		
+return	1		
+label	L8:		
+/	x	2	@temp6
+=	half	@temp6	
+/	x	2	@temp7
+*	@temp7	2	@temp7
+==	@temp7	x	
+jz	L9:		
+return	0		
+label	L9:		
+=	i	3	
+label	L11:		
+<	i	half	
+jz	L10:		
+/	x	i	@temp8
+*	@temp8	i	@temp8
+==	@temp8	x	
+jz	L12:		
+return	0		
+label	L12:		
++	i	2	i
+jmp	L11:		
+label	L10:		
+return	1		
+endp	isPrime		
 proc	main		
+printStr	"input a char"		
+scanf	chr		
++	chr	5	@temp9
+=	chr	@temp9	
+/	10	3	@temp10
+-	chr	@temp10	@temp10
+=	chr	@temp10	
+printf	chr		
 =	fibArr[0]	1	
 =	fibArr[1]	1	
 pushpara	9		
-call	fib	@temp6	
+call	fib	@temp11	
 =	i	0	
 printStr	"fib[0-9] are as follows:"		
-label	L7:		
+label	L13:		
 printf	fibArr[i]		
-+	i	1	@temp7
-=	i	@temp7	
++	i	1	@temp12
+=	i	@temp12	
 <	i	10	
-jnz	L7:		
-printStr	"please input a number n"		
+jnz	L13:		
+printStr	"input a number n"		
 scanf	n		
 >	n	10	
-jz	L8:		
+jz	L14:		
 =	n	10	
 printStr	"n is too large, so it is set to 10"		
-label	L8:		
-printStr	"please input an array of n ints"		
+label	L14:		
+printStr	"input an array of n ints"		
 =	i	0	
-label	L10:		
+label	L16:		
 <	i	n	
-jz	L9:		
+jz	L15:		
 scanf	temp		
 =	globalArr[i]	temp	
 +	i	1	i
-jmp	L10:		
-label	L9:		
+jmp	L16:		
+label	L15:		
 callvoid	sort		
 =	i	0	
-label	L12:		
+label	L18:		
 <	i	n	
-jz	L11:		
+jz	L17:		
 printf	globalArr[i]		
 +	i	1	i
-jmp	L12:		
-label	L11:		
-/	20	10	@temp8
-+	@temp8	50	@temp8
--	3	43	@temp9
-/	4	3	@temp10
-*	@temp9	@temp10	@temp9
-+	432	@temp9	@temp9
--	@temp9	5	@temp9
-+	@temp9	3	@temp9
--	@temp8	@temp9	@temp8
-=	n	@temp8	
+jmp	L18:		
+label	L17:		
+printStr	"the following number should be -338"		
+/	20	10	@temp13
++	@temp13	50	@temp13
+-	3	43	@temp14
+/	4	3	@temp15
+*	@temp14	@temp15	@temp14
++	432	@temp14	@temp14
+-	@temp14	5	@temp14
++	@temp14	3	@temp14
+-	@temp13	@temp14	@temp13
+=	n	@temp13	
 printf	n		
+printStr	"input a number n"		
+scanf	n		
+printStr	"the prime numbers that are less than n are as follows"		
+=	i	1	
+label	L19:		
+pushpara	i		
+call	isPrime	@temp16	
+!=	@temp16	0	
+jz	L20:		
+printf	i		
+label	L20:		
++	i	1	@temp17
+=	i	@temp17	
+<	i	n	
+jnz	L19:		
 endp	main		

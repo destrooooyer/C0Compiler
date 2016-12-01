@@ -1,6 +1,5 @@
-/*
-#ifndef ASM_GENERATOR_H
-#define ASM_GENERATOR_H
+#ifndef ASM_GENERATOR_KAI_H
+#define ASM_GENERATOR_KAI_H
 
 #include <string>
 #include <vector>
@@ -8,25 +7,6 @@
 
 #include "table.h"
 #include "intermediate_code_generator.h"
-
-
-class RegManager
-{
-public:
-	RegManager();
-	bool isAvailable(std::string);
-	std::pair<std::string, std::string> getRegContent(std::string);
-	std::string getReg();
-	void save(std::string regName);
-	void load(std::string regName, std::string funcName, std::string symName);
-	void reset();
-	void clearSym(std::string funcName,std::string name);
-
-private:
-	std::map<std::string, bool> regAvailability;
-	std::map<std::string, std::pair < std::string, std::string > > regContent;
-};
-
 
 class AddrDescriptor
 {
@@ -39,12 +19,32 @@ public:
 	void setRegAddr(std::string funcName, std::string name, std::string regName);
 	void printAddrRam();
 	void reset();
-	void clearEACDX();
+	void inValid(std::string funcName, std::string name);
 private:
 	std::map<std::string, std::map<std::string, std::string>> addrReg;
 	std::map<std::string, std::map<std::string, int>> addrRam;
 	Table table;
 };
+
+class RegManager
+{
+public:
+	RegManager();
+	bool isAvailable(std::string);
+	std::pair<std::string, std::string> getRegContent(std::string);
+	std::string getReg(std::vector<std::string> regOccupied);
+	void load(std::string regName, std::string funcName, std::string symName, AddrDescriptor &ad);
+	void reset();
+	void inValidReg(std::string regName, AddrDescriptor &ad);
+	void inValidSym(std::string funcName, std::string symName, AddrDescriptor &ad);
+	void upDate(AddrDescriptor &ad);
+
+private:
+	std::map<std::string, bool> regAvailability;
+	std::map<std::string, std::pair < std::string, std::string > > regContent;
+};
+
+
 
 
 class AsmGenerator
@@ -70,13 +70,12 @@ private:
 	std::vector<Quadruple> imCodes;
 	std::vector<std::string> asmCodes;
 
+	std::string getReg(std::vector<std::string> regOccupied);
 	std::string getAddrReg(std::string funcName, std::string name, std::vector<std::string> regOccupied);
-	std::string prepareReg(std::vector<std::string>regOccupied);
 	std::string getAddrRam(std::string funcName, std::string name, std::vector<std::string>regOccupied);
 	std::map<std::string, std::string> strs;
 
 	void genSave(std::string regName, std::vector<std::string> regOccupied);	//rag->ram
-	void genLoad(std::string funcName, std::string name, std::vector<std::string> regOccupied);	//ram->reg
 
 	void genLabel(std::string funcName, int loc);
 	void genJmp(int loc);
@@ -94,10 +93,7 @@ private:
 	void getStrings();
 	void genHeader();
 
-	void clearEACDX();
-
 };
 
 
 #endif
-*/
