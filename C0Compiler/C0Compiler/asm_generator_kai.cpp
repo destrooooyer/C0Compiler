@@ -108,7 +108,10 @@ void AsmGenerator::genFunc(int locBegin)
 	asmCodes.push_back("");
 	asmCodes.push_back("; " + imCodes[codeIter].arg1);
 	//gen proc
-	asmCodes.push_back(imCodes[codeIter].arg1 + " proc");
+	if (imCodes[codeIter].arg1 != "main")
+		asmCodes.push_back("@" + imCodes[codeIter].arg1 + " proc");
+	else
+		asmCodes.push_back(imCodes[codeIter].arg1 + " proc");
 
 	genFuncPrologue(imCodes[locBegin].arg1);
 	codeIter++;
@@ -124,7 +127,10 @@ void AsmGenerator::genFunc(int locBegin)
 	genFuncEpilogue(imCodes[locBegin].arg1);
 
 	//gen endp
-	asmCodes.push_back(imCodes[codeIter].arg1 + " endp");
+	if (imCodes[codeIter].arg1 != "main")
+		asmCodes.push_back("@" + imCodes[codeIter].arg1 + " endp");
+	else
+		asmCodes.push_back(imCodes[codeIter].arg1 + " endp");
 }
 
 string AsmGenerator::getAddrRam(string funcName, string name, vector<string>regOccupied)
@@ -396,7 +402,10 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 
 	if (util::isnumber(imCodes[loc].arg1[0]))
 	{
-		asmCodes.push_back("lea " + tempReg + ", $formatD");
+		if (imCodes[loc].arg2 == "c")
+			asmCodes.push_back("lea " + tempReg + ", $formatC");
+		else
+			asmCodes.push_back("lea " + tempReg + ", $formatD");
 	}
 	else
 	{
@@ -523,7 +532,7 @@ void AsmGenerator::genCallVoid(int loc)
 	regOccupied.push_back("ebx");
 	genSave("ecx", regOccupied);
 
-	asmCodes.push_back("call " + funcName);
+	asmCodes.push_back("call @" + funcName);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 	paraCount = 0;
 }
@@ -537,7 +546,7 @@ void AsmGenerator::genCall(string funcName, int loc)
 	regOccupied.push_back("ebx");
 	genSave("ecx", regOccupied);
 
-	asmCodes.push_back("call " + imCodes[loc].arg1);
+	asmCodes.push_back("call @" + imCodes[loc].arg1);
 	asmCodes.push_back("add esp, " + util::int2string(paraCount * 4));
 
 	regManager.load("eax", funcName, imCodes[loc].arg2, addrDescriptor);
@@ -1037,6 +1046,7 @@ bool AddrDescriptor::isInReg(string funcName, string name)
 		else
 			return true;
 	}
+	return false;
 }
 
 string AddrDescriptor::getRegAddr(string funcName, string name)

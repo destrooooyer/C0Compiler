@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "util.h"
 #include <string>
 #include <sstream>
@@ -59,11 +61,17 @@ char util::parseChar(string str)
 
 string util::int2string(int in)
 {
-	stringstream ss;
-	ss << in;
-	string temp;
-	ss >> temp;
-	return temp;
+	//stringstream ss;
+	//ss << in;
+	//string temp;
+	//ss >> temp;
+	//return ss.str();
+
+	//string temp;
+	char temp[100];
+	sprintf(temp, "%d", in);
+	return string(temp);
+
 }
 
 bool util::isArr(string str)

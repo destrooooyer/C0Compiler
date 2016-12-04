@@ -31,7 +31,7 @@ $str7 byte "the prime numbers that are less than n are as follows", 0AH, 0
 .code
 
 ; fib
-fib proc
+@fib proc
 
 ; fib prologue
 push ebp
@@ -51,14 +51,14 @@ mov eax, dword ptr [ebp+8]
 sub eax, 1
 push eax
 mov dword ptr [ebp-4], eax
-call fib
+call @fib
 add esp, 4
 mov ebx, dword ptr [ebp+8]
 sub ebx, 2
 push ebx
 mov dword ptr [ebp-8], eax
 mov dword ptr [ebp-12], ebx
-call fib
+call @fib
 add esp, 4
 mov ebx, dword ptr [ebp-8]
 add ebx, eax
@@ -77,10 +77,10 @@ pop esi
 mov esp, ebp
 pop ebp
 ret
-fib endp
+@fib endp
 
 ; sort
-sort proc
+@sort proc
 
 ; sort prologue
 push ebp
@@ -138,10 +138,10 @@ pop esi
 mov esp, ebp
 pop ebp
 ret
-sort endp
+@sort endp
 
 ; isPrime
-isPrime proc
+@isPrime proc
 
 ; isPrime prologue
 push ebp
@@ -217,7 +217,7 @@ pop esi
 mov esp, ebp
 pop ebp
 ret
-isPrime endp
+@isPrime endp
 
 ; main
 main proc
@@ -264,7 +264,7 @@ add esp, 8
 mov dword ptr [$fibArr+0*4], 1
 mov dword ptr [$fibArr+1*4], 1
 push 9
-call fib
+call @fib
 add esp, 4
 mov dword ptr [ebp-44], 0
 lea ebx, $str1
@@ -337,7 +337,7 @@ add eax, 1
 mov dword ptr [ebp-44], eax
 jmp L16
 L15:
-call sort
+call @sort
 add esp, 0
 mov dword ptr [ebp-44], 0
 L18:
@@ -408,7 +408,7 @@ add esp, 4
 mov dword ptr [ebp-44], 1
 L19:
 push dword ptr [ebp-44]
-call isPrime
+call @isPrime
 add esp, 4
 mov ebx, 0
 cmp eax, ebx
