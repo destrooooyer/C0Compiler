@@ -1,144 +1,220 @@
-proc	fib		
-==	fibArr[x]	0	
+proc	emptyfunc		
+endp	emptyfunc		
+proc	emptyfunc2		
+endp	emptyfunc2		
+proc	testchar		
+return	48		
+endp	testchar		
+proc	fibonacci		
+==	n	1	
 jz	L1:		
--	x	1	@temp1
-pushpara	@temp1		
-call	fib	@temp2	
--	x	2	@temp3
-pushpara	@temp3		
-call	fib	@temp4	
-+	@temp2	@temp4	@temp2
-=	fibArr[x]	@temp2	
+return	1		
 label	L1:		
-return	fibArr[x]		
-endp	fib		
-proc	sort		
-=	i	0	
-label	L3:		
-<	i	n	
+!=	n	2	
 jz	L2:		
-+	i	1	@temp5
-=	j	@temp5	
-label	L5:		
-<	j	n	
-jz	L4:		
->	globalArr[i]	globalArr[j]	
-jz	L6:		
-=	temp	globalArr[i]	
-=	globalArr[i]	globalArr[j]	
-=	globalArr[j]	temp	
-label	L6:		
-+	j	1	j
-jmp	L5:		
-label	L4:		
-+	i	1	i
-jmp	L3:		
++	n	-1	@temp1
+pushpara	@temp1		
+call	fibonacci	@temp2	
+-	n	2	@temp3
+pushpara	@temp3		
+call	fibonacci	@temp4	
++	@temp2	@temp4	@temp2
++	@temp2	0	@temp2
+return	@temp2		
 label	L2:		
-endp	sort		
-proc	isPrime		
-==	x	1	
-jz	L7:		
-return	0		
+return	1		
+endp	fibonacci		
+proc	move		
+printf	77		
+printStr	"OVE "		
+printf	a		
+printStr	" TO "		
+printf	b		
+printStr	" "		
+endp	move		
+proc	hanoi		
+>	2	hanoi	
+jz	L3:		
+pushpara	r		
+pushpara	l		
+callvoid	move		
+return			
+printStr	"RETURN ERROR"		
+label	L3:		
+pushpara	m		
+pushpara	r		
+pushpara	l		
+-	hanoi	1	@temp5
+pushpara	@temp5		
+callvoid	hanoi		
+pushpara	r		
+pushpara	l		
+callvoid	move		
+pushpara	r		
+pushpara	l		
+pushpara	m		
+-	hanoi	1	@temp6
+pushpara	@temp6		
+callvoid	hanoi		
+endp	hanoi		
+proc	getpower		
+printf	le		
+>=	le	2	
+jz	L4:		
+-	le	1	@temp7
+pushpara	@temp7		
+pushpara	n		
+call	getpower	@temp8	
+=	move	@temp8	
+-	le	1	@temp9
+*	move	n	@temp10
+=	aa[@temp9]	@temp10	
+*	n	move	@temp11
+return	@temp11		
+label	L4:		
+<=	1	le	
+jz	L5:		
+-	le	1	@temp12
+=	aa[@temp12]	n	
+return	n		
+label	L5:		
+endp	getpower		
+proc	getsqr		
+=	_i	1	
+/	n	_i	@temp13
+<	_i	@temp13	
+jz	L6:		
 label	L7:		
-==	x	2	
++	1	_i	@temp14
+=	_i	@temp14	
+/	n	_i	@temp15
+<	_i	@temp15	
+jnz	L7:		
+label	L6:		
+-	0	n	@temp16
+*	_i	_i	@temp17
++	@temp16	@temp17	@temp16
+-	0	1	@temp18
++	@temp18	_i	@temp18
+-	_i	1	@temp19
+*	@temp18	@temp19	@temp18
+-	n	@temp18	@temp18
+<	@temp16	@temp18	
 jz	L8:		
-return	1		
+return	_i		
 label	L8:		
-/	x	2	@temp6
-=	half	@temp6	
-/	x	2	@temp7
-*	@temp7	2	@temp7
-==	@temp7	x	
-jz	L9:		
-return	0		
-label	L9:		
-=	i	3	
-label	L11:		
-<	i	half	
-jz	L10:		
-/	x	i	@temp8
-*	@temp8	i	@temp8
-==	@temp8	x	
-jz	L12:		
-return	0		
-label	L12:		
-+	i	2	i
-jmp	L11:		
-label	L10:		
-return	1		
-endp	isPrime		
+-	_i	1	@temp20
+return	@temp20		
+endp	getsqr		
 proc	main		
-printStr	"input a char"		
-scanf	chr		
-+	chr	5	@temp9
-=	chr	@temp9	
-/	10	3	@temp10
--	chr	@temp10	@temp10
-=	chr	@temp10	
-printf	chr		
-=	fibArr[0]	1	
-=	fibArr[1]	1	
-pushpara	9		
-call	fib	@temp11	
+=	a	123456789	
+=	a_	65	
+=	testai[0]	5	
+=	testai[testai[0]]	1	
+=	testai[43]	2	
+scanf	c		
+scanf	num		
+==	c	1	
+jz	L9:		
+pushpara	10		
+pushpara	num		
+call	getpower	@temp21	
 =	i	0	
-printStr	"fib[0-9] are as follows:"		
-label	L13:		
-printf	fibArr[i]		
-+	i	1	@temp12
-=	i	@temp12	
 <	i	10	
-jnz	L13:		
-printStr	"input a number n"		
-scanf	n		
->	n	10	
+jz	L10:		
+label	L11:		
+printStr	"NO"		
++	i	1	@temp22
+printf	@temp22		
+printStr	":"		
+printf	aa[i]		
+printStr	" "		
+printStr	" "		
+!=	1	0	
+jz	L12:		
++	i	1	@temp23
+=	i	@temp23	
+label	L12:		
+<	i	10	
+jnz	L11:		
+label	L10:		
+label	L9:		
+==	c	2	
+jz	L13:		
+pushpara	67		
+pushpara	66		
+pushpara	65		
+pushpara	num		
+callvoid	hanoi		
+label	L13:		
+==	c	3	
 jz	L14:		
-=	n	10	
-printStr	"n is too large, so it is set to 10"		
+pushpara	num		
+call	fibonacci	@temp24	
+=	fib	@temp24	
+printf	fib		
 label	L14:		
-printStr	"input an array of n ints"		
-=	i	0	
-label	L16:		
-<	i	n	
+==	c	4	
 jz	L15:		
-scanf	temp		
-=	globalArr[i]	temp	
-+	i	1	i
-jmp	L16:		
+pushpara	num		
+call	getsqr	@temp25	
+=	sqr	@temp25	
+printf	sqr		
 label	L15:		
-callvoid	sort		
-=	i	0	
-label	L18:		
-<	i	n	
+==	c	5	
+jz	L16:		
+call	testchar	@temp26	
+printf	@temp26		
+*	3	2	@temp27
+/	@temp27	6	@temp27
+*	@temp27	testai[0]	@temp27
+printf	@temp27		
+label	L16:		
+==	c	6	
 jz	L17:		
-printf	globalArr[i]		
-+	i	1	i
-jmp	L18:		
-label	L17:		
-printStr	"the following number should be -338"		
-/	20	10	@temp13
-+	@temp13	50	@temp13
--	3	43	@temp14
-/	4	3	@temp15
-*	@temp14	@temp15	@temp14
-+	432	@temp14	@temp14
--	@temp14	5	@temp14
-+	@temp14	3	@temp14
--	@temp13	@temp14	@temp13
-=	n	@temp13	
-printf	n		
-printStr	"input a number n"		
-scanf	n		
-printStr	"the prime numbers that are less than n are as follows"		
-=	i	1	
-label	L19:		
-pushpara	i		
-call	isPrime	@temp16	
-!=	@temp16	0	
-jz	L20:		
-printf	i		
+!=	testai[0]	0	
+jz	L18:		
+printStr	"IFCORRECT"		
+label	L18:		
+!=	testai[0]	0	
+jz	L19:		
 label	L20:		
-+	i	1	@temp17
-=	i	@temp17	
-<	i	n	
-jnz	L19:		
+printf	testai[0]		
+-	testai[0]	1	@temp28
+=	testai[0]	@temp28	
+!=	testai[0]	0	
+jnz	L20:		
+label	L19:		
+label	L17:		
+-	0	7	@temp29
+==	c	@temp29	
+jz	L21:		
+scanf	testai1		
+scanf	testai2		
+scanf	testai3		
+scanf	testai4		
+scanf	testai5		
+scanf	testai6		
+printf	testai1		
+printf	testai2		
+printf	testai3		
+printf	testai4		
+printf	testai5		
+printf	testai6		
+label	L21:		
+==	c	0	
+jz	L22:		
+printf	123		
+scanf	c1		
+==	c1	97	
+jz	L23:		
+printf	1		
+label	L23:		
+==	c1	98	
+jz	L24:		
+printf	2		
+label	L24:		
+printf	123		
+label	L22:		
+return			
 endp	main		

@@ -1058,7 +1058,7 @@ string SyntaxAnalyzer::condition()
 		imCodeGenerator.gen4(op, arg1, arg2, "");
 		//arg1 = tempName;
 	}
-	if(flag==0)
+	if (flag == 0)
 		imCodeGenerator.gen4("!=", arg1, "0", "");
 
 	printInfo("This is a <条件>");
@@ -1233,7 +1233,10 @@ string SyntaxAnalyzer::factor()
 				tableItem.getKind() == "const" ||
 				tableItem.getKind() == "parameter")
 			{
-				temp = name;
+				if (tableItem.getKind() == "const")
+					temp = util::int2string(tableItem.getValue());
+				else
+					temp = name;
 			}
 			else	//identifier has a wrong kind, error
 			{
@@ -1391,6 +1394,7 @@ bool SyntaxAnalyzer::voidFunctionCall()
 //＜值参数表＞   :: = ＜表达式＞{ ,＜表达式＞ }｜＜空＞
 bool SyntaxAnalyzer::parameterList(int count)
 {
+	int codeIter = imCodeGenerator.quadruples.size();
 	int c = 0;	//parameter count
 	string temp;
 	//＜空＞
@@ -1416,6 +1420,29 @@ bool SyntaxAnalyzer::parameterList(int count)
 	else if (c>count)	//too many parameters, error
 	{
 		_error(29, symbles[iter].getLineNumber());
+	}
+
+	vector<vector<Quadruple>>pushReverse;
+	int codeIterBackUp = codeIter;
+	while (codeIter < imCodeGenerator.quadruples.size())
+	{
+		vector<Quadruple>temp;
+		while (codeIter < imCodeGenerator.quadruples.size())
+		{
+			temp.push_back(imCodeGenerator.quadruples[codeIter]);
+			codeIter++;
+			if (temp[temp.size() - 1].op == "pushpara")
+				break;
+		}
+		pushReverse.push_back(temp);
+	}
+	codeIter = codeIterBackUp;
+	for (int i = pushReverse.size() - 1; i >= 0; i--)
+	{
+		for (int j = 0; j < pushReverse[i].size(); j++)
+		{
+			imCodeGenerator.quadruples[codeIter++] = pushReverse[i][j];
+		}
 	}
 
 	printInfo("This is a <值参数表>");

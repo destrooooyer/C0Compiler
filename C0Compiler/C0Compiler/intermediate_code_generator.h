@@ -38,7 +38,6 @@ public:
 	void genPrintStr(std::string str);
 	std::vector<Quadruple> getQuadruples();
 
-private:
 	std::vector<Quadruple> quadruples;
 };
 

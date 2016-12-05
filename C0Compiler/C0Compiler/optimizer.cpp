@@ -9,7 +9,7 @@ Optimizer::Optimizer(vector<Quadruple> imCodes, Table table)
 
 void Optimizer::optimize()
 {
-	eliminateConsts();
+	//eliminateConsts();
 }
 
 vector<Quadruple> Optimizer::getCodes()

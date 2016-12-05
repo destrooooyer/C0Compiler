@@ -8,6 +8,7 @@ using namespace std;
 
 AsmGenerator::AsmGenerator(Table table, vector<Quadruple>imCodes)
 {
+	paraCount = 0;
 	this->table = table;
 	this->imCodes = imCodes;
 	this->addrDescriptor = AddrDescriptor(table);
@@ -403,9 +404,9 @@ void AsmGenerator::genPrintf(string funcName, int loc)
 	if (util::isnumber(imCodes[loc].arg1[0]))
 	{
 		if (imCodes[loc].arg2 == "c")
-			asmCodes.push_back("lea " + tempReg + ", $formatC");
+			asmCodes.push_back("lea " + tempReg + ", $formatCNewLine");
 		else
-			asmCodes.push_back("lea " + tempReg + ", $formatD");
+			asmCodes.push_back("lea " + tempReg + ", $formatDNewLine");
 	}
 	else
 	{
@@ -499,26 +500,39 @@ void AsmGenerator::genPrintStr(int loc)
 
 void AsmGenerator::genPushPara(string funcName, int loc)
 {
-	paraCount = 0;
-	vector<Quadruple> pushes;
-	int locBackUp = loc;
-	while (imCodes[loc].op == "pushpara")
-		pushes.push_back(imCodes[loc++]);
-	paraCount = pushes.size();
-	for (int i = pushes.size() - 1; i >= 0; i--)
+	// 	paraCount = 0;
+	// 	vector<Quadruple> pushes;
+	// 	int locBackUp = loc;
+	// 	while (imCodes[loc].op == "pushpara")
+	// 		pushes.push_back(imCodes[loc++]);
+	// 	paraCount = pushes.size();
+	// 	for (int i = pushes.size() - 1; i >= 0; i--)
+	// 	{
+	// 		string temp = pushes[i].arg1;
+	// 		if (util::isnumber(temp[0]))
+	// 			asmCodes.push_back("push " + temp);
+	// 		else if (util::isArr(temp))
+	// 			asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+	// 		else
+	// 		{
+	// 			if (addrDescriptor.isInReg(funcName, temp))
+	// 				asmCodes.push_back("push " + addrDescriptor.getRegAddr(funcName, temp));
+	// 			else
+	// 				asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+	// 		}
+	// 	}
+	paraCount += 1;
+	string temp = imCodes[loc].arg1;
+	if (util::isnumber(temp[0]))
+		asmCodes.push_back("push " + temp);
+	else if (util::isArr(temp))
+		asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+	else
 	{
-		string temp = pushes[i].arg1;
-		if (util::isnumber(temp[0]))
-			asmCodes.push_back("push " + temp);
-		else if (util::isArr(temp))
-			asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
+		if (addrDescriptor.isInReg(funcName, temp))
+			asmCodes.push_back("push " + addrDescriptor.getRegAddr(funcName, temp));
 		else
-		{
-			if (addrDescriptor.isInReg(funcName, temp))
-				asmCodes.push_back("push " + addrDescriptor.getRegAddr(funcName, temp));
-			else
-				asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
-		}
+			asmCodes.push_back("push " + getAddrRam(funcName, temp, vector<string>()));
 	}
 }
 
@@ -661,6 +675,13 @@ void AsmGenerator::genStatement(int loc, string funcName)
 					else
 						arg2 = getAddrReg(funcName, imCodes[loc].arg2, regOccupied);
 					regOccupied.push_back(arg2);
+
+					if (imCodes[loc].op == "+")
+						asmCodes.push_back("add " + arg1 + ", " + arg2);
+					else if (imCodes[loc].op == "-")
+						asmCodes.push_back("sub " + arg1 + ", " + arg2);
+					else if (imCodes[loc].op == "*")
+						asmCodes.push_back("imul " + arg1 + ", " + arg2);
 				}
 				else if (!util::isnumber(imCodes[loc].arg2[0]))	//+ 2 a b
 				{
@@ -682,14 +703,17 @@ void AsmGenerator::genStatement(int loc, string funcName)
 					else
 						arg2 = getAddrReg(funcName, imCodes[loc].arg1, regOccupied);
 					regOccupied.push_back(arg2);
-				}
 
-				if (imCodes[loc].op == "+")
-					asmCodes.push_back("add " + arg1 + ", " + arg2);
-				else if (imCodes[loc].op == "-")
-					asmCodes.push_back("sub " + arg1 + ", " + arg2);
-				else if (imCodes[loc].op == "*")
-					asmCodes.push_back("imul " + arg1 + ", " + arg2);
+					if (imCodes[loc].op == "+")
+						asmCodes.push_back("add " + arg1 + ", " + arg2);
+					else if (imCodes[loc].op == "-")
+					{
+						asmCodes.push_back("neg " + arg1);
+						asmCodes.push_back("add " + arg1 + ", " + arg2);
+					}
+					else if (imCodes[loc].op == "*")
+						asmCodes.push_back("imul " + arg1 + ", " + arg2);
+				}
 
 				//a+b->c: a+=b, then change the id saved in reg (the id is a) to c
 				//chang the id saved in reg
@@ -779,8 +803,7 @@ void AsmGenerator::genStatement(int loc, string funcName)
 	}
 	else if (imCodes[loc].op == "pushpara")
 	{
-		if (imCodes[loc - 1].op != "pushpara")
-			genPushPara(funcName, loc);
+		genPushPara(funcName, loc);
 	}
 	else if (imCodes[loc].op == "call")
 	{
