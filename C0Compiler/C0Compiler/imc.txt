@@ -1,220 +1,175 @@
-proc	emptyfunc		
-endp	emptyfunc		
-proc	emptyfunc2		
-endp	emptyfunc2		
-proc	testchar		
-return	48		
-endp	testchar		
-proc	fibonacci		
-==	n	1	
-jz	L1:		
-return	1		
-label	L1:		
-!=	n	2	
-jz	L2:		
-+	n	-1	@temp1
-pushpara	@temp1		
-call	fibonacci	@temp2	
--	n	2	@temp3
-pushpara	@temp3		
-call	fibonacci	@temp4	
-+	@temp2	@temp4	@temp2
-+	@temp2	0	@temp2
-return	@temp2		
-label	L2:		
-return	1		
-endp	fibonacci		
-proc	move		
-printf	77		
-printStr	"OVE "		
-printf	a		
-printStr	" TO "		
-printf	b		
+proc	PrintHelloWorld		
+=	cInt2	233	
+printStr	" !#$%&'()*+,-./0123456789:;<=> @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"		
 printStr	" "		
-endp	move		
-proc	hanoi		
->	2	hanoi	
-jz	L3:		
-pushpara	r		
-pushpara	l		
-callvoid	move		
+printStr	"helloworld!"		
+printf	42	c	
+printf	95	c	
+printf	10		
+printf	cInt2		
 return			
-printStr	"RETURN ERROR"		
-label	L3:		
-pushpara	m		
-pushpara	r		
-pushpara	l		
--	hanoi	1	@temp5
-pushpara	@temp5		
-callvoid	hanoi		
-pushpara	r		
-pushpara	l		
-callvoid	move		
-pushpara	r		
-pushpara	l		
-pushpara	m		
--	hanoi	1	@temp6
-pushpara	@temp6		
-callvoid	hanoi		
-endp	hanoi		
-proc	getpower		
-printf	le		
->=	le	2	
-jz	L4:		
--	le	1	@temp7
-pushpara	@temp7		
-pushpara	n		
-call	getpower	@temp8	
-=	move	@temp8	
--	le	1	@temp9
-*	move	n	@temp10
-=	aa[@temp9]	@temp10	
-*	n	move	@temp11
-return	@temp11		
-label	L4:		
-<=	1	le	
-jz	L5:		
--	le	1	@temp12
-=	aa[@temp12]	n	
-return	n		
-label	L5:		
-endp	getpower		
-proc	getsqr		
-=	_i	1	
-/	n	_i	@temp13
-<	_i	@temp13	
-jz	L6:		
-label	L7:		
-+	1	_i	@temp14
-=	_i	@temp14	
-/	n	_i	@temp15
-<	_i	@temp15	
-jnz	L7:		
-label	L6:		
--	0	n	@temp16
-*	_i	_i	@temp17
-+	@temp16	@temp17	@temp16
--	0	1	@temp18
-+	@temp18	_i	@temp18
--	_i	1	@temp19
-*	@temp18	@temp19	@temp18
--	n	@temp18	@temp18
-<	@temp16	@temp18	
-jz	L8:		
-return	_i		
-label	L8:		
--	_i	1	@temp20
-return	@temp20		
-endp	getsqr		
+endp	PrintHelloWorld		
+proc	SquareSum		
+*	_a	-1	@temp1
+-	0	@temp1	@temp2
+=	temp	@temp2	
+*	_a	0	@temp3
+=	temp	@temp3	
+*	_a	0	@temp4
+=	temp	@temp4	
+*	_a	_a	@temp5
+=	temp	@temp5	
+*	_a	_a	@temp6
+-	0	@temp6	@temp7
+-	0	@temp7	@temp8
+*	b	b	@temp9
++	@temp8	@temp9	@temp8
+=	temp	@temp8	
+return	temp		
+endp	SquareSum		
+proc	_myStop		
+printStr	"input a char and enter:"		
+scanf	temp		
+endp	_myStop		
+proc	NsquareSum		
+=	Temp	temp	
+==	times	1	
+jz	L1:		
+return	temp		
+label	L1:		
+-	times	1	@temp10
+pushpara	@temp10		
+pushpara	temp		
+call	NsquareSum	@temp11	
+*	Temp	@temp11	@temp11
+=	Temp	@temp11	
+return	Temp		
+endp	NsquareSum		
+proc	NextAlphabet		
++	x	1	@temp12
+return	@temp12		
+endp	NextAlphabet		
 proc	main		
-=	a	123456789	
-=	a_	65	
-=	testai[0]	5	
-=	testai[testai[0]]	1	
-=	testai[43]	2	
-scanf	c		
+callvoid	PrintHelloWorld		
+printStr	"please input number counts:"		
 scanf	num		
-==	c	1	
-jz	L9:		
-pushpara	10		
-pushpara	num		
-call	getpower	@temp21	
 =	i	0	
-<	i	10	
+=	_a	666	
+-	0	20	@temp13
+=	intArray[0]	@temp13	
+printf	intArray[0]		
+=	abc[0]	97	
+=	abc[1]	98	
+=	abc[2]	99	
+pushpara	abc[0]		
+call	NextAlphabet	@temp14	
+printf	@temp14		
+>	_a	intArray[0]	
+jz	L2:		
+-	intArray[0]	1	@temp15
+=	_a	@temp15	
+label	L2:		
+printStr	"_a is"		
+printf	_a		
+<	_a	intArray[0]	
+jz	L3:		
+=	_a	2	
+label	L3:		
+printStr	"_a is"		
+printf	_a		
+==	_a	2	
+jz	L4:		
+*	intArray[0]	2	@temp16
+=	_a	@temp16	
+label	L4:		
+printStr	"_a is"		
+printf	_a		
+!=	_a	intArray[0]	
+jz	L5:		
+=	_a	4	
+label	L5:		
+printStr	"_a is"		
+printf	_a		
+>=	_a	4	
+jz	L6:		
+-	0	0	@temp17
+=	_a	@temp17	
+label	L6:		
+printStr	"_a is"		
+printf	_a		
+<=	_a	0	
+jz	L7:		
+printStr	"if ok....perhaps"		
+printf	_a		
+=	_a	666	
+label	L7:		
+printStr	"_a is"		
+printf	_a		
+==	num	0	
+jz	L8:		
+printStr	"result:0"		
+jmp	L9:		
+label	L8:		
+==	num	1	
 jz	L10:		
-label	L11:		
-printStr	"NO"		
-+	i	1	@temp22
-printf	@temp22		
-printStr	":"		
-printf	aa[i]		
-printStr	" "		
-printStr	" "		
-!=	1	0	
+scanf	temp1		
+printStr	"result:"		
++	temp1	10	@temp18
+-	@temp18	10	@temp18
+printf	@temp18		
+jmp	L11:		
+label	L10:		
+==	num	2	
 jz	L12:		
+scanf	temp1		
+scanf	temp2		
+printStr	"result:"		
+-	temp2	2	@temp20
++	@temp20	2	@temp20
+pushpara	@temp20		
++	temp1	0	@temp19
+pushpara	@temp19		
+call	SquareSum	@temp21	
+printf	@temp21		
+jmp	L13:		
+label	L12:		
+>	num	0	
+jz	L14:		
+=	temp2	0	
+<	i	num	
+jz	L15:		
+label	L16:		
+scanf	temp1		
+pushpara	num		
+pushpara	temp1		
+call	NsquareSum	@temp22	
++	temp2	@temp22	@temp22
+=	temp2	@temp22	
 +	i	1	@temp23
 =	i	@temp23	
-label	L12:		
-<	i	10	
-jnz	L11:		
-label	L10:		
-label	L9:		
-==	c	2	
-jz	L13:		
-pushpara	67		
-pushpara	66		
-pushpara	65		
-pushpara	num		
-callvoid	hanoi		
-label	L13:		
-==	c	3	
-jz	L14:		
-pushpara	num		
-call	fibonacci	@temp24	
-=	fib	@temp24	
-printf	fib		
-label	L14:		
-==	c	4	
-jz	L15:		
-pushpara	num		
-call	getsqr	@temp25	
-=	sqr	@temp25	
-printf	sqr		
+<	i	num	
+jnz	L16:		
 label	L15:		
-==	c	5	
-jz	L16:		
-call	testchar	@temp26	
-printf	@temp26		
-*	3	2	@temp27
-/	@temp27	6	@temp27
-*	@temp27	testai[0]	@temp27
-printf	@temp27		
-label	L16:		
-==	c	6	
-jz	L17:		
-!=	testai[0]	0	
-jz	L18:		
-printStr	"IFCORRECT"		
-label	L18:		
-!=	testai[0]	0	
-jz	L19:		
-label	L20:		
-printf	testai[0]		
--	testai[0]	1	@temp28
-=	testai[0]	@temp28	
-!=	testai[0]	0	
-jnz	L20:		
-label	L19:		
-label	L17:		
--	0	7	@temp29
-==	c	@temp29	
-jz	L21:		
-scanf	testai1		
-scanf	testai2		
-scanf	testai3		
-scanf	testai4		
-scanf	testai5		
-scanf	testai6		
-printf	testai1		
-printf	testai2		
-printf	testai3		
-printf	testai4		
-printf	testai5		
-printf	testai6		
-label	L21:		
-==	c	0	
-jz	L22:		
-printf	123		
-scanf	c1		
-==	c1	97	
-jz	L23:		
-printf	1		
-label	L23:		
-==	c1	98	
-jz	L24:		
-printf	2		
-label	L24:		
-printf	123		
-label	L22:		
+=	a3[0]	temp2	
+printStr	"result:"		
+printf	a3[0]		
+label	L14:		
+label	L13:		
+label	L11:		
+label	L9:		
+callvoid	_myStop		
+pushpara	1		
+pushpara	1		
+call	NsquareSum	@temp24	
+=	i	@temp24	
+printStr	" "		
++	temp1	temp2	@temp25
+=	k	@temp25	
++	temp1	temp2	@temp26
+=	i	@temp26	
+=	j	temp1	
++	j	temp2	@temp27
+=	j	@temp27	
+callvoid	_myStop		
 return			
 endp	main		

@@ -1234,7 +1234,11 @@ string SyntaxAnalyzer::factor()
 				tableItem.getKind() == "parameter")
 			{
 				if (tableItem.getKind() == "const")
+				{
 					temp = util::int2string(tableItem.getValue());
+					if (tableItem.getType() == "char")
+						typeIndicator = 1;
+				}
 				else
 					temp = name;
 			}
@@ -1257,6 +1261,7 @@ string SyntaxAnalyzer::factor()
 	else if (symbles[iter].getType() == "CHAR")
 	{
 		temp = util::int2string((int)_char());
+		typeIndicator = 1;
 	}
 	//°Æ(°Ø£º±Ì¥Ô Ω£æ°Æ)°Ø
 	else if (symbles[iter].getType() == "LPAREN")
@@ -1861,8 +1866,11 @@ bool SyntaxAnalyzer::printfStatement()
 	}
 	else
 	{
+		typeIndicator = 0;
 		temp = expression();
 		imCodeGenerator.genPrintf(temp);
+		if (util::isnumber(temp[0]) && typeIndicator == 1)
+			imCodeGenerator.quadruples[imCodeGenerator.quadruples.size() - 1].arg2 = "c";
 	}
 
 	if (symbles[iter].getType() == "RPAREN")

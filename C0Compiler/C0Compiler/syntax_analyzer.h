@@ -65,6 +65,7 @@ private:
 	TempNameManager tmpNameManager;
 	LabelManager labelManager;
 	int iter;
+	int typeIndicator;
 	std::vector<Error> syntaxErrors;
 	Table table;
 	std::string funcName;
