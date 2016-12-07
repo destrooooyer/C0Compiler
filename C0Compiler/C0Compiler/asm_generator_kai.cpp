@@ -81,6 +81,8 @@ void AsmGenerator::genData()
 	}
 	for (map<string, string>::iterator iter = strs.begin(); iter != strs.end(); iter++)
 	{
+		if (iter->second == "\"\"")
+			iter->second = "\" \"";
 		asmCodes.push_back(iter->first + " byte " + iter->second + ", 0AH, 0");
 	}
 }

@@ -11,269 +11,391 @@ $formatD  byte "%d", 0
 $formatC  byte "%c", 0
 $formatDNewLine  byte "%d", 0AH, 0
 $formatCNewLine  byte "%c", 0AH, 0
-$A2 dword 1 dup(0)
-$A3 dword 20 dup(0)
-$A4 dword 0
-$_ dword 0
-$_9 dword 0
-$_A dword 0
-$__ dword 0
-$_a dword 0
-$a1 dword 0
-$a2 dword 0
-$a3 dword 10 dup(0)
-$a4 dword 1 dup(0)
-$a5 dword 0
-$cChar0 dword 95
-$cChar1 dword 97
-$cChar2 dword 65
-$cChar3 dword 43
-$cChar4 dword 42
-$cChar5 dword 48
-$cInt1 dword 10
-$cInt2 dword -1
-$cInt3 dword 0
-$cMaxInt dword 2147483647
-$cMinInt dword -2147483647
-$cmaxint dword 2147483647
-$str0 byte " !#$%&'()*+,-./0123456789:;<=> @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 0AH, 0
-$str1 byte " ", 0AH, 0
-$str10 byte "if ok....perhaps", 0AH, 0
-$str11 byte "_a is", 0AH, 0
-$str12 byte "result:0", 0AH, 0
-$str13 byte "result:", 0AH, 0
-$str14 byte "result:", 0AH, 0
-$str15 byte "result:", 0AH, 0
-$str16 byte " ", 0AH, 0
-$str2 byte "helloworld!", 0AH, 0
-$str3 byte "input a char and enter:", 0AH, 0
-$str4 byte "please input number counts:", 0AH, 0
-$str5 byte "_a is", 0AH, 0
-$str6 byte "_a is", 0AH, 0
-$str7 byte "_a is", 0AH, 0
-$str8 byte "_a is", 0AH, 0
-$str9 byte "_a is", 0AH, 0
+$a dword 10 dup(0)
+$c dword 0
+$cona dword 1
+$conb dword 2
+$conc dword 3
+$cong dword 4
+$conh dword 5
+$coni dword 6
+$conj dword 7
+$str0 byte "OVE ", 0AH, 0
+$str1 byte " TO ", 0AH, 0
+$str10 byte "ERROR", 0AH, 0
+$str2 byte " ", 0AH, 0
+$str3 byte "RETURN ERROR", 0AH, 0
+$str4 byte "NO", 0AH, 0
+$str5 byte ":", 0AH, 0
+$str6 byte " ", 0AH, 0
+$str7 byte " ", 0AH, 0
+$str8 byte "IFCORRECT", 0AH, 0
+$str9 byte ">=", 0AH, 0
 
 
 .code
 
-; PrintHelloWorld
-@PrintHelloWorld proc
+; emptyfunc
+@emptyfunc proc
 
-; PrintHelloWorld prologue
+; emptyfunc prologue
 push ebp
 mov ebp, esp
-sub esp, 8
 push esi
 push edi
 push ebx
 
-; PrintHelloWorld body
-mov dword ptr [ebp-4], 233
+; emptyfunc body
+
+; emptyfunc epilogue
+@emptyfunc_epilogue:
+pop ebx
+pop edi
+pop esi
+mov esp, ebp
+pop ebp
+ret
+@emptyfunc endp
+
+; emptyfunc2
+@emptyfunc2 proc
+
+; emptyfunc2 prologue
+push ebp
+mov ebp, esp
+push esi
+push edi
+push ebx
+
+; emptyfunc2 body
+
+; emptyfunc2 epilogue
+@emptyfunc2_epilogue:
+pop ebx
+pop edi
+pop esi
+mov esp, ebp
+pop ebp
+ret
+@emptyfunc2 endp
+
+; testchar
+@testchar proc
+
+; testchar prologue
+push ebp
+mov ebp, esp
+push esi
+push edi
+push ebx
+
+; testchar body
+mov eax, 48
+jmp @testchar_epilogue
+
+; testchar epilogue
+@testchar_epilogue:
+pop ebx
+pop edi
+pop esi
+mov esp, ebp
+pop ebp
+ret
+@testchar endp
+
+; fibonacci
+@fibonacci proc
+
+; fibonacci prologue
+push ebp
+mov ebp, esp
+sub esp, 28
+push esi
+push edi
+push ebx
+
+; fibonacci body
+mov eax, dword ptr [ebp+8]
+mov ebx, 1
+cmp eax, ebx
+jne L1
+mov eax, 1
+jmp @fibonacci_epilogue
+L1:
+mov eax, dword ptr [ebp+8]
+mov ebx, 2
+cmp eax, ebx
+je L2
+mov dword ptr [ebp+8], eax
+add eax, -1
+push eax
+mov dword ptr [ebp-4], eax
+call @fibonacci
+add esp, 4
+mov ebx, dword ptr [ebp+8]
+sub ebx, 2
+push ebx
+mov dword ptr [ebp-8], eax
+mov dword ptr [ebp-12], ebx
+call @fibonacci
+add esp, 4
+mov ebx, dword ptr [ebp-8]
+add ebx, eax
+add ebx, 0
+mov eax, ebx
+jmp @fibonacci_epilogue
+L2:
+mov eax, 1
+jmp @fibonacci_epilogue
+
+; fibonacci epilogue
+@fibonacci_epilogue:
+pop ebx
+pop edi
+pop esi
+mov esp, ebp
+pop ebp
+ret
+@fibonacci endp
+
+; move
+@move proc
+
+; move prologue
+push ebp
+mov ebp, esp
+sub esp, 12
+push esi
+push edi
+push ebx
+
+; move body
+mov eax, 77
+push eax
+lea ebx, $formatCNewLine
+push ebx
+call printf
+add esp, 8
 lea eax, $str0
 push eax
 call printf
 add esp, 4
+mov eax, dword ptr [ebp+8]
+push eax
+lea ebx, $formatCNewLine
+push ebx
+mov dword ptr [ebp+8], eax
+call printf
+add esp, 8
 lea eax, $str1
 push eax
 call printf
 add esp, 4
+mov eax, dword ptr [ebp+12]
+push eax
+lea ebx, $formatCNewLine
+push ebx
+mov dword ptr [ebp+12], eax
+call printf
+add esp, 8
 lea eax, $str2
 push eax
 call printf
 add esp, 4
-mov eax, 42
-push eax
-lea ebx, $formatCNewLine
-push ebx
-call printf
-add esp, 8
-mov eax, 95
-push eax
-lea ebx, $formatCNewLine
-push ebx
-call printf
-add esp, 8
-mov eax, 10
-push eax
-lea ebx, $formatDNewLine
-push ebx
-call printf
-add esp, 8
-mov eax, dword ptr [ebp-4]
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [ebp-4], eax
-call printf
-add esp, 8
-jmp @PrintHelloWorld_epilogue
 
-; PrintHelloWorld epilogue
-@PrintHelloWorld_epilogue:
+; move epilogue
+@move_epilogue:
 pop ebx
 pop edi
 pop esi
 mov esp, ebp
 pop ebp
 ret
-@PrintHelloWorld endp
+@move endp
 
-; SquareSum
-@SquareSum proc
+; hanoi
+@hanoi proc
 
-; SquareSum prologue
+; hanoi prologue
 push ebp
 mov ebp, esp
-sub esp, 48
+sub esp, 12
 push esi
 push edi
 push ebx
 
-; SquareSum body
-mov eax, dword ptr [ebp+8]
-imul eax, -1
-mov dword ptr [ebp-4], eax
-neg eax
-add eax, 0
-mov dword ptr [ebp-40], eax
+; hanoi body
+mov eax, 2
 mov ebx, dword ptr [ebp+8]
-imul ebx, 0
-mov dword ptr [ebp-40], ebx
-mov ecx, dword ptr [ebp+8]
-imul ecx, 0
-mov dword ptr [ebp-40], ecx
-mov edi, dword ptr [ebp+8]
-imul edi, edi
-mov dword ptr [ebp-40], edi
-mov edx, dword ptr [ebp+8]
-imul edx, edx
-mov dword ptr [ebp-24], edx
-neg edx
-add edx, 0
-mov dword ptr [ebp-28], edx
-neg edx
-add edx, 0
-mov esi, dword ptr [ebp+12]
-imul esi, esi
-add edx, esi
-mov dword ptr [ebp-40], edx
-mov dword ptr [ebp-8], eax
-mov eax, dword ptr [ebp-40]
-jmp @SquareSum_epilogue
-
-; SquareSum epilogue
-@SquareSum_epilogue:
-pop ebx
-pop edi
-pop esi
-mov esp, ebp
-pop ebp
-ret
-@SquareSum endp
-
-; _myStop
-@_myStop proc
-
-; _myStop prologue
-push ebp
-mov ebp, esp
-sub esp, 8
-push esi
-push edi
-push ebx
-
-; _myStop body
+cmp eax, ebx
+jle L3
+push dword ptr [ebp+20]
+push dword ptr [ebp+12]
+mov dword ptr [ebp+8], ebx
+call @move
+add esp, 8
+jmp @hanoi_epilogue
 lea eax, $str3
 push eax
 call printf
 add esp, 4
-lea eax, dword ptr [ebp-4]
+L3:
+push dword ptr [ebp+16]
+push dword ptr [ebp+20]
+push dword ptr [ebp+12]
+mov eax, dword ptr [ebp+8]
+sub eax, 1
 push eax
-lea eax, [$formatC]
-push eax
-call scanf
+mov dword ptr [ebp-4], eax
+call @hanoi
+add esp, 16
+push dword ptr [ebp+20]
+push dword ptr [ebp+12]
+call @move
 add esp, 8
+push dword ptr [ebp+20]
+push dword ptr [ebp+12]
+push dword ptr [ebp+16]
+mov eax, dword ptr [ebp+8]
+sub eax, 1
+push eax
+mov dword ptr [ebp-8], eax
+call @hanoi
+add esp, 16
 
-; _myStop epilogue
-@_myStop_epilogue:
+; hanoi epilogue
+@hanoi_epilogue:
 pop ebx
 pop edi
 pop esi
 mov esp, ebp
 pop ebp
 ret
-@_myStop endp
+@hanoi endp
 
-; NsquareSum
-@NsquareSum proc
+; getpower
+@getpower proc
 
-; NsquareSum prologue
+; getpower prologue
 push ebp
 mov ebp, esp
-sub esp, 56
+sub esp, 32
 push esi
 push edi
 push ebx
 
-; NsquareSum body
-mov eax, dword ptr [ebp+8]
-mov dword ptr [ebp-12], eax
-mov ebx, dword ptr [ebp+12]
-mov ecx, 1
-cmp ebx, ecx
-jne L1
-jmp @NsquareSum_epilogue
-L1:
+; getpower body
 mov eax, dword ptr [ebp+12]
+mov ebx, 2
+cmp eax, ebx
+jl L4
+mov dword ptr [ebp+12], eax
 sub eax, 1
 push eax
 push dword ptr [ebp+8]
-mov dword ptr [ebp-4], eax
-call @NsquareSum
+mov dword ptr [ebp-16], eax
+call @getpower
 add esp, 8
-mov ebx, dword ptr [ebp-12]
-imul eax, ebx
-mov dword ptr [ebp-12], eax
-mov ebx, dword ptr [ebp-12]
-mov eax, ebx
-jmp @NsquareSum_epilogue
+mov dword ptr [ebp-28], eax
+mov ebx, dword ptr [ebp+12]
+sub ebx, 1
+mov ecx, dword ptr [ebp-28]
+mov edi, dword ptr [ebp+8]
+imul ecx, edi
+mov dword ptr [$a+ebx*4], ecx
+mov dword ptr [ebp+8], edi
+mov edx, dword ptr [ebp-28]
+imul edi, edx
+mov eax, edi
+jmp @getpower_epilogue
+L4:
+mov eax, 1
+mov ebx, dword ptr [ebp+12]
+cmp eax, ebx
+jg L5
+mov dword ptr [ebp+12], ebx
+sub ebx, 1
+mov eax, dword ptr [ebp+8]
+mov dword ptr [$a+ebx*4], eax
+jmp @getpower_epilogue
+L5:
 
-; NsquareSum epilogue
-@NsquareSum_epilogue:
+; getpower epilogue
+@getpower_epilogue:
 pop ebx
 pop edi
 pop esi
 mov esp, ebp
 pop ebp
 ret
-@NsquareSum endp
+@getpower endp
 
-; NextAlphabet
-@NextAlphabet proc
+; getsqr
+@getsqr proc
 
-; NextAlphabet prologue
+; getsqr prologue
 push ebp
 mov ebp, esp
-sub esp, 8
+sub esp, 40
 push esi
 push edi
 push ebx
 
-; NextAlphabet body
+; getsqr body
+mov dword ptr [ebp-36], 1
 mov eax, dword ptr [ebp+8]
+cdq
+mov ebx, dword ptr [ebp-36]
+idiv ebx
+cmp ebx, eax
+jge L6
+L7:
+mov eax, dword ptr [ebp-36]
 add eax, 1
-jmp @NextAlphabet_epilogue
+mov dword ptr [ebp-36], eax
+mov dword ptr [ebp-8], eax
+mov eax, dword ptr [ebp+8]
+cdq
+mov ebx, dword ptr [ebp-36]
+idiv ebx
+cmp ebx, eax
+jl L7
+L6:
+mov eax, dword ptr [ebp+8]
+neg eax
+add eax, 0
+mov ebx, dword ptr [ebp-36]
+imul ebx, ebx
+add eax, ebx
+mov ecx, dword ptr [ebp-24]
+mov ecx, -1
+mov edi, dword ptr [ebp-36]
+add ecx, edi
+mov dword ptr [ebp-36], edi
+sub edi, 1
+imul ecx, edi
+mov edx, dword ptr [ebp+8]
+neg ecx
+add ecx, edx
+cmp eax, ecx
+jge L8
+mov esi, dword ptr [ebp-36]
+mov eax, esi
+jmp @getsqr_epilogue
+L8:
+mov eax, dword ptr [ebp-36]
+sub eax, 1
+jmp @getsqr_epilogue
 
-; NextAlphabet epilogue
-@NextAlphabet_epilogue:
+; getsqr epilogue
+@getsqr_epilogue:
 pop ebx
 pop edi
 pop esi
 mov esp, ebp
 pop ebp
 ret
-@NextAlphabet endp
+@getsqr endp
 
 ; main
 main proc
@@ -281,323 +403,357 @@ main proc
 ; main prologue
 push ebp
 mov ebp, esp
-sub esp, 104
+sub esp, 596
 push esi
 push edi
 push ebx
 
 ; main body
-call @PrintHelloWorld
-add esp, 0
+mov dword ptr [ebp-56], 1234567891
+mov dword ptr [ebp-52], 65
+mov dword ptr [ebp-524+0*4], 5
+mov eax, dword ptr [ebp-524+0*4]
+mov dword ptr [ebp-524+eax*4], 1
+mov dword ptr [ebp-524+43*4], 2
+lea eax, dword ptr [ebp-60]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
+add esp, 8
+lea eax, dword ptr [ebp-120]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
+add esp, 8
+mov eax, dword ptr [ebp-60]
+mov ebx, 1
+cmp eax, ebx
+jne L9
+push 10
+push dword ptr [ebp-120]
+mov dword ptr [ebp-60], eax
+call @getpower
+add esp, 8
+mov dword ptr [ebp-116], 0
+mov ebx, dword ptr [ebp-116]
+mov ecx, 10
+cmp ebx, ecx
+jge L10
+L11:
 lea eax, $str4
 push eax
 call printf
 add esp, 4
-lea eax, dword ptr [ebp-92]
+mov eax, dword ptr [ebp-116]
+add eax, 1
 push eax
-lea eax, [$formatD]
-push eax
-call scanf
-add esp, 8
-mov dword ptr [ebp-76], 0
-mov dword ptr [$_a], 666
-mov eax, dword ptr [ebp-4]
-mov eax, -20
-mov dword ptr [ebp-80+0*4], eax
-mov ebx, dword ptr [ebp-80+0*4]
-push ebx
-lea ecx, $formatDNewLine
-push ecx
-mov dword ptr [ebp-4], eax
-mov dword ptr [ebp-80+0*4], ebx
-call printf
-add esp, 8
-mov dword ptr [ebp-72+0*4], 97
-mov dword ptr [ebp-72+1*4], 98
-mov dword ptr [ebp-72+2*4], 99
-push dword ptr [ebp-72+0*4]
-call @NextAlphabet
-add esp, 4
-push eax
-lea ebx, $formatCNewLine
+lea ebx, $formatDNewLine
 push ebx
 mov dword ptr [ebp-8], eax
 call printf
 add esp, 8
-mov eax, dword ptr [$_a]
-mov ebx, dword ptr [ebp-80+0*4]
-cmp eax, ebx
-jle L2
-mov ebx, dword ptr [ebp-80+0*4]
-sub ebx, 1
-mov dword ptr [$_a], ebx
-L2:
 lea eax, $str5
 push eax
 call printf
 add esp, 4
-mov eax, dword ptr [$_a]
+mov eax, dword ptr [ebp-116]
+mov eax, dword ptr [$a+eax*4]
 push eax
 lea ebx, $formatDNewLine
 push ebx
-mov dword ptr [$_a], eax
+mov ebx, dword ptr [ebp-116]
+mov dword ptr [$a+ebx*4], eax
+mov dword ptr [ebp-116], ebx
 call printf
 add esp, 8
-mov eax, dword ptr [$_a]
-mov ebx, dword ptr [ebp-80+0*4]
-cmp eax, ebx
-jge L3
-mov dword ptr [$_a], 2
-L3:
 lea eax, $str6
 push eax
 call printf
 add esp, 4
-mov eax, dword ptr [$_a]
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [$_a], eax
-call printf
-add esp, 8
-mov eax, dword ptr [$_a]
-mov ebx, 2
-cmp eax, ebx
-jne L4
-mov ebx, dword ptr [ebp-80+0*4]
-imul ebx, 2
-mov dword ptr [$_a], ebx
-L4:
 lea eax, $str7
 push eax
 call printf
 add esp, 4
-mov eax, dword ptr [$_a]
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [$_a], eax
-call printf
-add esp, 8
-mov eax, dword ptr [$_a]
-mov ebx, dword ptr [ebp-80+0*4]
+mov eax, 1
+mov ebx, 0
 cmp eax, ebx
-je L5
-mov dword ptr [$_a], 4
-L5:
-lea eax, $str8
-push eax
-call printf
+je L12
+mov eax, dword ptr [ebp-116]
+add eax, 1
+mov dword ptr [ebp-116], eax
+L12:
+mov eax, dword ptr [ebp-116]
+mov ebx, 10
+cmp eax, ebx
+jl L11
+L10:
+L9:
+mov eax, dword ptr [ebp-60]
+mov ebx, 2
+cmp eax, ebx
+jne L13
+push 67
+push 66
+push 65
+push dword ptr [ebp-120]
+mov dword ptr [ebp-60], eax
+call @hanoi
+add esp, 16
+jmp L14
+L13:
+mov eax, dword ptr [ebp-60]
+mov ebx, 3
+cmp eax, ebx
+jne L15
+push dword ptr [ebp-120]
+mov dword ptr [ebp-60], eax
+call @fibonacci
 add esp, 4
-mov eax, dword ptr [$_a]
-push eax
-lea ebx, $formatDNewLine
+mov dword ptr [ebp-112], eax
+mov ebx, dword ptr [ebp-112]
 push ebx
-mov dword ptr [$_a], eax
+lea ecx, $formatDNewLine
+push ecx
+mov dword ptr [ebp-16], eax
+mov dword ptr [ebp-112], ebx
 call printf
 add esp, 8
-mov eax, dword ptr [$_a]
+L15:
+L14:
+mov eax, dword ptr [ebp-60]
 mov ebx, 4
 cmp eax, ebx
-jl L6
-mov ebx, dword ptr [ebp-20]
-mov ebx, 0
-mov dword ptr [$_a], ebx
-L6:
-lea eax, $str9
-push eax
-call printf
+jne L16
+push dword ptr [ebp-120]
+mov dword ptr [ebp-60], eax
+call @getsqr
 add esp, 4
-mov eax, dword ptr [$_a]
-push eax
-lea ebx, $formatDNewLine
+mov dword ptr [ebp-124], eax
+mov ebx, dword ptr [ebp-124]
 push ebx
-mov dword ptr [$_a], eax
+lea ecx, $formatDNewLine
+push ecx
+mov dword ptr [ebp-20], eax
+mov dword ptr [ebp-124], ebx
 call printf
 add esp, 8
-mov eax, dword ptr [$_a]
-mov ebx, 0
+jmp L17
+L16:
+mov eax, dword ptr [ebp-60]
+mov ebx, 5
 cmp eax, ebx
-jg L7
-lea ebx, $str10
-push ebx
-mov dword ptr [$_a], eax
-call printf
-add esp, 4
-mov eax, dword ptr [$_a]
+jne L18
+mov dword ptr [ebp-60], eax
+call @testchar
+add esp, 0
 push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [$_a], eax
-call printf
-add esp, 8
-mov dword ptr [$_a], 666
-L7:
-lea eax, $str11
-push eax
-call printf
-add esp, 4
-mov eax, dword ptr [$_a]
-push eax
-lea ebx, $formatDNewLine
-push ebx
-mov dword ptr [$_a], eax
-call printf
-add esp, 8
-mov eax, dword ptr [ebp-92]
-mov ebx, 0
-cmp eax, ebx
-jne L8
-lea ebx, $str12
-push ebx
-mov dword ptr [ebp-92], eax
-call printf
-add esp, 4
-jmp L9
-L8:
-mov eax, dword ptr [ebp-92]
-mov ebx, 1
-cmp eax, ebx
-jne L10
-lea ebx, dword ptr [ebp-96]
-push ebx
-lea ebx, [$formatD]
-push ebx
-mov dword ptr [ebp-92], eax
-call scanf
-add esp, 8
-lea eax, $str13
-push eax
-call printf
-add esp, 4
-mov eax, dword ptr [ebp-96]
-add eax, 10
-sub eax, 10
-push eax
-lea ebx, $formatDNewLine
+lea ebx, $formatCNewLine
 push ebx
 mov dword ptr [ebp-24], eax
 call printf
 add esp, 8
-jmp L11
-L10:
-mov eax, dword ptr [ebp-92]
-mov ebx, 2
-cmp eax, ebx
-jne L12
-lea ebx, dword ptr [ebp-96]
-push ebx
-lea ebx, [$formatD]
-push ebx
-mov dword ptr [ebp-92], eax
-call scanf
-add esp, 8
-lea eax, dword ptr [ebp-100]
-push eax
-lea eax, [$formatD]
-push eax
-call scanf
-add esp, 8
-lea eax, $str14
-push eax
-call printf
-add esp, 4
-mov eax, dword ptr [ebp-100]
-sub eax, 2
-add eax, 2
-push eax
-mov ebx, dword ptr [ebp-96]
-add ebx, 0
-push ebx
-mov dword ptr [ebp-32], eax
-mov dword ptr [ebp-28], ebx
-call @SquareSum
-add esp, 8
+mov eax, dword ptr [ebp-28]
+mov eax, 6
+mov dword ptr [ebp-28], eax
+mov eax, dword ptr [ebp-28]
+cdq
+mov ebx, 6
+idiv ebx
+mov ebx, dword ptr [ebp-524+0*4]
+imul eax, ebx
 push eax
 lea ebx, $formatDNewLine
 push ebx
-mov dword ptr [ebp-36], eax
+mov dword ptr [ebp-28], eax
 call printf
 add esp, 8
-jmp L13
-L12:
-mov eax, dword ptr [ebp-92]
+jmp L19
+L18:
+mov eax, dword ptr [ebp-60]
+mov ebx, 6
+cmp eax, ebx
+jne L20
+mov ebx, dword ptr [ebp-524+0*4]
+mov ecx, 0
+cmp ebx, ecx
+je L21
+lea ebx, $str8
+push ebx
+mov dword ptr [ebp-60], eax
+call printf
+add esp, 4
+L21:
+mov eax, dword ptr [ebp-524+0*4]
 mov ebx, 0
 cmp eax, ebx
-jle L14
-mov dword ptr [ebp-100], 0
-mov ebx, dword ptr [ebp-76]
+je L22
+L23:
+mov eax, dword ptr [ebp-524+0*4]
+push eax
+lea ebx, $formatDNewLine
+push ebx
+mov dword ptr [ebp-524+0*4], eax
+call printf
+add esp, 8
+mov eax, dword ptr [ebp-524+0*4]
+sub eax, 1
+mov dword ptr [ebp-524+0*4], eax
+mov ebx, dword ptr [ebp-524+0*4]
+mov ecx, 0
+cmp ebx, ecx
+jne L23
+L22:
+jmp L24
+L20:
+mov eax, dword ptr [ebp-36]
+mov eax, -7
+mov ebx, dword ptr [ebp-60]
 cmp ebx, eax
-jge L15
-L16:
-lea eax, dword ptr [ebp-96]
+jne L25
+lea ecx, dword ptr [ebp-528]
+push ecx
+lea ecx, [$formatD]
+push ecx
+mov dword ptr [ebp-36], eax
+mov dword ptr [ebp-60], ebx
+call scanf
+add esp, 8
+lea eax, dword ptr [ebp-532]
 push eax
 lea eax, [$formatD]
 push eax
 call scanf
 add esp, 8
-push dword ptr [ebp-92]
-push dword ptr [ebp-96]
-call @NsquareSum
+lea eax, dword ptr [ebp-536]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
 add esp, 8
-mov ebx, dword ptr [ebp-100]
-add eax, ebx
-mov dword ptr [ebp-100], eax
-mov ebx, dword ptr [ebp-76]
-add ebx, 1
-mov dword ptr [ebp-76], ebx
-mov ecx, dword ptr [ebp-76]
-mov edi, dword ptr [ebp-92]
-cmp ecx, edi
-jl L16
-L15:
-mov eax, dword ptr [ebp-100]
-mov dword ptr [$a3+0*4], eax
-lea ebx, $str15
-push ebx
-mov dword ptr [ebp-100], eax
-call printf
-add esp, 4
-mov eax, dword ptr [$a3+0*4]
+lea eax, dword ptr [ebp-540]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
+add esp, 8
+lea eax, dword ptr [ebp-544]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
+add esp, 8
+lea eax, dword ptr [ebp-548]
+push eax
+lea eax, [$formatD]
+push eax
+call scanf
+add esp, 8
+mov eax, dword ptr [ebp-528]
 push eax
 lea ebx, $formatDNewLine
 push ebx
-mov dword ptr [$a3+0*4], eax
+mov dword ptr [ebp-528], eax
 call printf
 add esp, 8
-L14:
-L13:
-L11:
-L9:
-call @_myStop
-add esp, 0
-push 1
-push 1
-call @NsquareSum
-add esp, 8
-mov dword ptr [ebp-76], eax
-lea ebx, $str16
+mov eax, dword ptr [ebp-532]
+push eax
+lea ebx, $formatDNewLine
 push ebx
-mov dword ptr [ebp-48], eax
+mov dword ptr [ebp-532], eax
+call printf
+add esp, 8
+mov eax, dword ptr [ebp-536]
+push eax
+lea ebx, $formatDNewLine
+push ebx
+mov dword ptr [ebp-536], eax
+call printf
+add esp, 8
+mov eax, dword ptr [ebp-540]
+push eax
+lea ebx, $formatDNewLine
+push ebx
+mov dword ptr [ebp-540], eax
+call printf
+add esp, 8
+mov eax, dword ptr [ebp-544]
+push eax
+lea ebx, $formatDNewLine
+push ebx
+mov dword ptr [ebp-544], eax
+call printf
+add esp, 8
+mov eax, dword ptr [ebp-548]
+push eax
+lea ebx, $formatDNewLine
+push ebx
+mov dword ptr [ebp-548], eax
+call printf
+add esp, 8
+jmp L26
+L25:
+mov eax, dword ptr [ebp-60]
+mov ebx, 0
+cmp eax, ebx
+jne L27
+lea ebx, dword ptr [ebp-64]
+push ebx
+lea ebx, [$formatC]
+push ebx
+mov dword ptr [ebp-60], eax
+call scanf
+add esp, 8
+mov eax, dword ptr [ebp-64]
+mov ebx, 97
+cmp eax, ebx
+jne L28
+mov ebx, 1
+push ebx
+lea ecx, $formatDNewLine
+push ecx
+mov dword ptr [ebp-64], eax
+call printf
+add esp, 8
+jmp L29
+L28:
+mov eax, dword ptr [ebp-64]
+mov ebx, 98
+cmp eax, ebx
+jne L30
+mov ebx, 2
+push ebx
+lea ecx, $formatDNewLine
+push ecx
+mov dword ptr [ebp-64], eax
+call printf
+add esp, 8
+jmp L31
+L30:
+lea eax, $str9
+push eax
 call printf
 add esp, 4
-mov eax, dword ptr [ebp-96]
-mov ebx, dword ptr [ebp-100]
-add eax, ebx
-mov dword ptr [ebp-88], eax
-mov ecx, dword ptr [ebp-96]
-add ecx, ebx
-mov dword ptr [ebp-76], ecx
-mov edi, dword ptr [ebp-96]
-mov dword ptr [ebp-84], edi
-mov edx, dword ptr [ebp-84]
-add edx, ebx
-mov dword ptr [ebp-84], edx
-mov dword ptr [ebp-52], eax
-mov dword ptr [ebp-100], ebx
-mov dword ptr [ebp-56], ecx
-call @_myStop
-add esp, 0
+mov eax, 3
+push eax
+lea ebx, $formatDNewLine
+push ebx
+call printf
+add esp, 8
+L31:
+L29:
+jmp L32
+L27:
+lea eax, $str10
+push eax
+call printf
+add esp, 4
+L32:
+L26:
+L24:
+L19:
+L17:
 jmp @main_epilogue
 
 ; main epilogue
