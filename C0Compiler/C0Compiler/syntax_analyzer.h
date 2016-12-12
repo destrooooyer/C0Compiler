@@ -57,7 +57,7 @@ public:
 
 	bool infoSwitch;
 
-	void printErrors();
+	bool printErrors();
 
 private:
 	std::vector <Symbol> symbles;

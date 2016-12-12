@@ -2172,10 +2172,13 @@ void Error::print()
 	}
 }
 
-void SyntaxAnalyzer::printErrors()
+bool SyntaxAnalyzer::printErrors()
 {
 	for (int i = 0; i < syntaxErrors.size(); i++)
 		syntaxErrors[i].print();
+	if (syntaxErrors.size() == 0)
+		return false;
+	return true;
 }
 
 Table SyntaxAnalyzer::getTable()

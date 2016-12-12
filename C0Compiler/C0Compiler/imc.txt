@@ -1,236 +1,74 @@
-proc	emptyfunc		
-endp	emptyfunc		
-proc	emptyfunc2		
-endp	emptyfunc2		
-proc	testchar		
-return	48		
-endp	testchar		
-proc	fibonacci		
-==	n	1	
-jz	L1:		
-return	1		
+proc	sort		
+=	x	i	
+=	y	j	
++	i	j	@temp1
+/	@temp1	2	@temp1
+=	z	d[@temp1]	
 label	L1:		
-!=	n	2	
+<	z	d[y]	
 jz	L2:		
-+	n	-1	@temp1
-pushpara	@temp1		
-call	fibonacci	@temp2	
--	n	2	@temp3
-pushpara	@temp3		
-call	fibonacci	@temp4	
-+	@temp2	@temp4	@temp2
-+	@temp2	0	@temp2
-return	@temp2		
-label	L2:		
-return	1		
-endp	fibonacci		
-proc	move		
-printf	77	c	
-printStr	"OVE "		
-printf	a		
-printStr	" TO "		
-printf	b		
-printStr	" "		
-endp	move		
-proc	hanoi		
->	2	hanoi	
-jz	L3:		
-pushpara	r		
-pushpara	l		
-callvoid	move		
-return			
-printStr	"RETURN ERROR"		
 label	L3:		
-pushpara	m		
-pushpara	r		
-pushpara	l		
--	hanoi	1	@temp5
-pushpara	@temp5		
-callvoid	hanoi		
-pushpara	r		
-pushpara	l		
-callvoid	move		
-pushpara	r		
-pushpara	l		
-pushpara	m		
--	hanoi	1	@temp6
-pushpara	@temp6		
-callvoid	hanoi		
-endp	hanoi		
-proc	getpower		
->=	le	2	
+-	y	1	@temp2
+=	y	@temp2	
+<	z	d[y]	
+jnz	L3:		
+label	L2:		
+>	z	d[x]	
 jz	L4:		
--	le	1	@temp7
-pushpara	@temp7		
-pushpara	n		
-call	getpower	@temp8	
-=	move	@temp8	
--	le	1	@temp9
-*	move	n	@temp10
-=	a[@temp9]	@temp10	
-*	n	move	@temp11
-return	@temp11		
-label	L4:		
-<=	1	le	
-jz	L5:		
--	le	1	@temp12
-=	a[@temp12]	n	
-return	n		
 label	L5:		
-endp	getpower		
-proc	getsqr		
-=	_i	1	
-/	n	_i	@temp13
-<	_i	@temp13	
++	x	1	@temp3
+=	x	@temp3	
+>	z	d[x]	
+jnz	L5:		
+label	L4:		
+<=	x	y	
 jz	L6:		
-label	L7:		
-+	1	_i	@temp14
-=	_i	@temp14	
-/	n	_i	@temp15
-<	_i	@temp15	
-jnz	L7:		
+=	tmp	d[x]	
+=	d[x]	d[y]	
+=	d[y]	tmp	
++	x	1	@temp4
+=	x	@temp4	
+-	y	1	@temp5
+=	y	@temp5	
 label	L6:		
--	0	n	@temp16
-*	_i	_i	@temp17
-+	@temp16	@temp17	@temp16
--	0	1	@temp18
-+	@temp18	_i	@temp18
--	_i	1	@temp19
-*	@temp18	@temp19	@temp18
--	n	@temp18	@temp18
-<	@temp16	@temp18	
+<=	x	y	
+jnz	L1:		
+<	x	j	
+jz	L7:		
+pushpara	j		
+pushpara	x		
+callvoid	sort		
+label	L7:		
+<	i	y	
 jz	L8:		
-return	_i		
+pushpara	y		
+pushpara	i		
+callvoid	sort		
 label	L8:		
--	_i	1	@temp20
-return	@temp20		
-endp	getsqr		
+endp	sort		
 proc	main		
-=	a_a	1234567891	
-=	a_	65	
-=	testai[0]	5	
-=	testai[testai[0]]	1	
-=	testai[43]	2	
-scanf	c		
-scanf	num		
-==	c	1	
-jz	L9:		
-pushpara	10		
-pushpara	num		
-call	getpower	@temp21	
+/	356	4	@temp6
++	@temp6	83	@temp6
+*	44	23	@temp7
+-	@temp6	@temp7	@temp6
+*	234	@temp6	@temp6
+*	@temp6	-1	@temp6
+-	0	@temp6	@temp8
+=	d[0]	@temp8	
+*	3234	-1	@temp9
+-	0	@temp9	@temp10
+=	d[1]	@temp10	
+-	-34	23	@temp11
+=	d[2]	@temp11	
+pushpara	2		
+pushpara	0		
+callvoid	sort		
 =	i	0	
-<	i	10	
-jz	L10:		
-label	L11:		
-printStr	"NO"		
-+	i	1	@temp22
-printf	@temp22		
-printStr	":"		
-printf	a[i]		
-printStr	" "		
-printStr	""		
-!=	1	0	
-jz	L12:		
-+	i	1	@temp23
-=	i	@temp23	
-label	L12:		
-<	i	10	
-jnz	L11:		
 label	L10:		
+<	i	3	
+jz	L9:		
+printf	d[i]		
++	i	1	i
+jmp	L10:		
 label	L9:		
-==	c	2	
-jz	L13:		
-pushpara	67		
-pushpara	66		
-pushpara	65		
-pushpara	num		
-callvoid	hanoi		
-jmp	L14:		
-label	L13:		
-==	c	3	
-jz	L15:		
-pushpara	num		
-call	fibonacci	@temp24	
-=	fib	@temp24	
-printf	fib		
-label	L15:		
-label	L14:		
-==	c	4	
-jz	L16:		
-pushpara	num		
-call	getsqr	@temp25	
-=	sqr	@temp25	
-printf	sqr		
-jmp	L17:		
-label	L16:		
-==	c	5	
-jz	L18:		
-call	testchar	@temp26	
-printf	@temp26		
-*	3	2	@temp27
-/	@temp27	6	@temp27
-*	@temp27	testai[0]	@temp27
-printf	@temp27		
-jmp	L19:		
-label	L18:		
-==	c	6	
-jz	L20:		
-!=	testai[0]	0	
-jz	L21:		
-printStr	"IFCORRECT"		
-label	L21:		
-!=	testai[0]	0	
-jz	L22:		
-label	L23:		
-printf	testai[0]		
--	testai[0]	1	@temp28
-=	testai[0]	@temp28	
-!=	testai[0]	0	
-jnz	L23:		
-label	L22:		
-jmp	L24:		
-label	L20:		
--	0	7	@temp29
-==	c	@temp29	
-jz	L25:		
-scanf	testai1		
-scanf	testai2		
-scanf	testai3		
-scanf	testai4		
-scanf	testai5		
-scanf	testai6		
-printf	testai1		
-printf	testai2		
-printf	testai3		
-printf	testai4		
-printf	testai5		
-printf	testai6		
-jmp	L26:		
-label	L25:		
-==	c	0	
-jz	L27:		
-scanf	c1		
-==	c1	97	
-jz	L28:		
-printf	1		
-jmp	L29:		
-label	L28:		
-==	c1	98	
-jz	L30:		
-printf	2		
-jmp	L31:		
-label	L30:		
-printStr	">="		
-printf	3		
-label	L31:		
-label	L29:		
-jmp	L32:		
-label	L27:		
-printStr	"ERROR"		
-label	L32:		
-label	L26:		
-label	L24:		
-label	L19:		
-label	L17:		
-return			
 endp	main		

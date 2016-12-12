@@ -46,7 +46,7 @@ int main()
 	cin >> sourceFile;
 	//sourceFile = "D:/documents/学校相关/编译/语法分析/14061120_刘润泽_语法分析/14061120_test.txt";
 	//sourceFile = "D:\\documents\\学校相关\\编译\\代码生成\\test.txt";
-	//sourceFile = "C:\\Users\\DESTRooooYER\\Desktop\\编译_test\\test.c";
+	//sourceFile = "C:/Users/DESTR/Documents/GitHub/C0Compiler/编译_test/test.c";
 	cout << sourceFile;
 
 	cout << endl;
@@ -58,7 +58,11 @@ int main()
 	//syntax.infoSwitch = true;
 	syntax.infoSwitch = false;
 	syntax.program();
-	syntax.printErrors();
+	if (syntax.printErrors())
+	{
+		system("pause");
+		return 0;
+	}
 	system("pause");
 
 	table = syntax.getTable();
@@ -66,7 +70,7 @@ int main()
 
 	intermediateCodes = syntax.getIntermediateCodes();
 
-	Optimizer optimizer(intermediateCodes,table);
+	Optimizer optimizer(intermediateCodes, table);
 	optimizer.optimize();
 	intermediateCodes = optimizer.getCodes();
 	printIntermediateCodes(intermediateCodes);
