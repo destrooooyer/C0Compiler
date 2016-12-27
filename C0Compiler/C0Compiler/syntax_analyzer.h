@@ -69,6 +69,7 @@ private:
 	std::vector<Error> syntaxErrors;
 	Table table;
 	std::string funcName;
+	bool isVoid;
 
 	void printInfo(std::string str);
 	void _error(int errorType, int lineNumber);

@@ -27,6 +27,7 @@ vector<Quadruple> SyntaxAnalyzer::getIntermediateCodes()
 bool SyntaxAnalyzer::program()
 {
 	funcName = "globle";
+	isVoid = false;
 	//［＜常量说明＞］
 	if (symbles[iter].getType() == "PRESERVED_WORD_CONST")		//const
 		constExplanation();
@@ -544,6 +545,8 @@ string SyntaxAnalyzer::typeIdentifier()
 //＜有返回值函数定义＞  ::=  ＜声明头部＞‘(’＜参数＞‘)’ ‘{’＜复合语句＞‘}’
 bool SyntaxAnalyzer::returnFunctionDeclaration()
 {
+	isVoid = false;
+
 	string name;
 	string type;
 	string kind = "return_function";
@@ -625,6 +628,8 @@ bool SyntaxAnalyzer::returnFunctionDeclaration()
 //＜无返回值函数定义＞  ::= void＜标识符＞‘(’＜参数＞‘)’‘{’＜复合语句＞‘}’
 bool SyntaxAnalyzer::voidFunctionDeclaration()
 {
+	isVoid = true;
+
 	string name;
 	string type = "void";
 	string kind = "void_function";
@@ -2006,6 +2011,11 @@ bool SyntaxAnalyzer::returnStatement()
 
 	if (symbles[iter].getType() == "LPAREN")
 	{
+		if (isVoid == true)	//return an expression in void function, error
+		{
+			_error(31, symbles[iter].getLineNumber());
+		}
+
 		iter++;
 		temp = expression();
 		imCodeGenerator.genReturn(temp);
@@ -2073,6 +2083,7 @@ void Error::print()
 	//28 identifier has a wrong kind
 	//29 too many parameters
 	//30 not enough parameters
+	//31 cannot return an expression in a void function
 
 	cout << "[line" << this->lineNumber << "]\t";
 	switch (this->type)
@@ -2166,6 +2177,9 @@ void Error::print()
 		break;
 	case 30:
 		cout << "not enough parameters\n";
+		break;
+	case  31:
+		cout << "cannot return an expression in a void function\n";
 		break;
 	default:
 		break;

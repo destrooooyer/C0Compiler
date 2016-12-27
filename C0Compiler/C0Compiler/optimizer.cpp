@@ -1,5 +1,6 @@
 #include "optimizer.h"
 #include "util.h"
+#include<iostream>
 using namespace std;
 Optimizer::Optimizer(vector<Quadruple> imCodes, Table table)
 {
@@ -10,6 +11,8 @@ Optimizer::Optimizer(vector<Quadruple> imCodes, Table table)
 void Optimizer::optimize()
 {
 	//eliminateConsts();
+	toBlocks();
+	printBlocks();
 }
 
 vector<Quadruple> Optimizer::getCodes()
@@ -71,4 +74,53 @@ void Optimizer::eliminateConsts()
 	}
 	imCodes = tempCodes;
 
+}
+
+
+void Optimizer::toBlocks()
+{
+	int blockFront = 0;
+	int blockRear = 1;
+	while (blockRear < imCodes.size())
+	{
+		if (imCodes[blockRear].op == "proc" ||
+			imCodes[blockRear].op == "label"
+			)
+		{
+			if (blockFront < blockRear)
+				blocks.push_back(Block(blockFront, blockRear, imCodes));
+			blockFront = blockRear;
+		}
+		else if (imCodes[blockRear].op == "jmp" ||
+			imCodes[blockRear].op == "jz" ||
+			imCodes[blockRear].op == "jnz" ||
+			imCodes[blockRear].op == "return")
+		{
+			if (blockFront < blockRear + 1)
+				blocks.push_back(Block(blockFront, blockRear + 1, imCodes));
+			blockFront = blockRear + 1;
+		}
+		blockRear++;
+	}
+}
+
+void Optimizer::printBlocks()
+{
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		cout << "--------------------------------------\n";
+		for (int j = 0; j < blocks[i].codes.size(); j++)
+		{
+			cout << blocks[i].codes[j].op << "\t" <<
+				blocks[i].codes[j].arg1 << "\t" <<
+				blocks[i].codes[j].arg2 << "\t" <<
+				blocks[i].codes[j].arg3 << endl;
+		}
+	}
+}
+
+Block::Block(int front, int rear, vector<Quadruple> imCodes)
+{
+	for (int i = front; i < rear; i++)
+		codes.push_back(imCodes[i]);
 }

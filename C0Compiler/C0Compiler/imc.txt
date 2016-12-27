@@ -1,74 +1,19 @@
-proc	sort		
-=	x	i	
-=	y	j	
-+	i	j	@temp1
-/	@temp1	2	@temp1
-=	z	d[@temp1]	
-label	L1:		
-<	z	d[y]	
-jz	L2:		
-label	L3:		
--	y	1	@temp2
-=	y	@temp2	
-<	z	d[y]	
-jnz	L3:		
-label	L2:		
->	z	d[x]	
-jz	L4:		
-label	L5:		
-+	x	1	@temp3
-=	x	@temp3	
->	z	d[x]	
-jnz	L5:		
-label	L4:		
-<=	x	y	
-jz	L6:		
-=	tmp	d[x]	
-=	d[x]	d[y]	
-=	d[y]	tmp	
-+	x	1	@temp4
-=	x	@temp4	
--	y	1	@temp5
-=	y	@temp5	
-label	L6:		
-<=	x	y	
-jnz	L1:		
-<	x	j	
-jz	L7:		
-pushpara	j		
-pushpara	x		
-callvoid	sort		
-label	L7:		
-<	i	y	
-jz	L8:		
-pushpara	y		
-pushpara	i		
-callvoid	sort		
-label	L8:		
-endp	sort		
+proc	add		
++	a	b	@temp1
+return	@temp1		
+endp	add		
 proc	main		
-/	356	4	@temp6
-+	@temp6	83	@temp6
-*	44	23	@temp7
--	@temp6	@temp7	@temp6
-*	234	@temp6	@temp6
-*	@temp6	-1	@temp6
--	0	@temp6	@temp8
-=	d[0]	@temp8	
-*	3234	-1	@temp9
--	0	@temp9	@temp10
-=	d[1]	@temp10	
--	-34	23	@temp11
-=	d[2]	@temp11	
-pushpara	2		
-pushpara	0		
-callvoid	sort		
-=	i	0	
-label	L10:		
-<	i	3	
-jz	L9:		
-printf	d[i]		
-+	i	1	i
-jmp	L10:		
-label	L9:		
+=	a	1	
+=	b	2	
++	a	b	@temp2
+=	c	@temp2	
++	a	b	@temp3
++	@temp3	c	@temp3
+pushpara	b		
+pushpara	a		
+call	add	@temp4	
++	@temp3	@temp4	@temp3
++	a	b	@temp5
++	@temp3	@temp5	@temp3
+=	d	@temp3	
 endp	main		

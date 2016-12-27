@@ -7,17 +7,29 @@
 #include <vector>
 
 
+class Block
+{
+public:
+	std::vector<Quadruple> codes;
+	Block();
+	Block(int front, int rear, std::vector<Quadruple> imCodes);
+};
+
 class Optimizer
 {
 public:
 	Optimizer(std::vector<Quadruple> imCodes, Table table);
 	void optimize();
 	std::vector<Quadruple> getCodes();
+	void printBlocks();
 private:
 	std::vector<Quadruple> imCodes;
 	Table table;
 	void eliminateConsts();
+	void toBlocks();
+	std::vector<Block> blocks;
 };
+
 
 
 #endif
