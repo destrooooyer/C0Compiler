@@ -74,6 +74,7 @@ int main()
 	optimizer.optimize();
 	intermediateCodes = optimizer.getCodes();
 	printIntermediateCodes(intermediateCodes);
+	table = optimizer.getTable();
 
 	AsmGenerator asmGenerator(table, intermediateCodes);
 	asmGenerator.gen();

@@ -1,19 +1,144 @@
-proc	add		
-+	a	b	@temp1
-return	@temp1		
-endp	add		
+proc	fib		
+==	fibArr[x]	0	
+jz	L1:		
+-	x	1	@temp1
+pushpara	@temp1		
+call	fib	@temp2	
+-	x	2	@temp3
+pushpara	@temp3		
+call	fib	@temp4	
++	@temp2	@temp4	@temp2
+=	fibArr[x]	@temp2	
+label	L1:		
+return	fibArr[x]		
+endp	fib		
+proc	sort		
+=	i	0	
+label	L3:		
+<	i	n	
+jz	L2:		
++	i	1	@temp5
+=	j	@temp5	
+label	L5:		
+<	j	n	
+jz	L4:		
+>	globalArr[i]	globalArr[j]	
+jz	L6:		
+=	temp	globalArr[i]	
+=	globalArr[i]	globalArr[j]	
+=	globalArr[j]	temp	
+label	L6:		
++	j	1	j
+jmp	L5:		
+label	L4:		
++	i	1	i
+jmp	L3:		
+label	L2:		
+endp	sort		
+proc	isPrime		
+==	x	1	
+jz	L7:		
+return	0		
+label	L7:		
+==	x	2	
+jz	L8:		
+return	1		
+label	L8:		
+/	x	2	@temp6
+=	@T4	@temp6	
+*	@T4	2	@temp7
+=	half	@temp6	
+==	@temp7	x	
+jz	L9:		
+return	0		
+label	L9:		
+=	i	3	
+label	L11:		
+<	i	half	
+jz	L10:		
+/	x	i	@T2
+*	@T2	i	@temp8
+==	@temp8	x	
+jz	L12:		
+return	0		
+label	L12:		
++	i	2	i
+jmp	L11:		
+label	L10:		
+return	1		
+endp	isPrime		
 proc	main		
-=	a	1	
-=	b	2	
-+	a	b	@temp2
-=	c	@temp2	
-+	a	b	@temp3
-+	@temp3	c	@temp3
-pushpara	b		
-pushpara	a		
-call	add	@temp4	
-+	@temp3	@temp4	@temp3
-+	a	b	@temp5
-+	@temp3	@temp5	@temp3
-=	d	@temp3	
+printStr	"input a char"		
+scanf	chr		
+/	10	3	@T6
++	chr	5	@temp9
+=	@T3	@temp9	
+-	@T3	@T6	@temp10
+=	chr	@temp10	
+printf	chr		
+=	fibArr[0]	1	
+=	fibArr[1]	1	
+pushpara	9		
+call	fib	@temp11	
+=	i	0	
+printStr	"fib[0-9] are as follows:"		
+label	L13:		
+printf	fibArr[i]		
++	i	1	@temp12
+=	i	@temp12	
+<	i	10	
+jnz	L13:		
+printStr	"input a number n"		
+scanf	n		
+>	n	10	
+jz	L14:		
+=	n	10	
+printStr	"n is too large, so it is set to 10"		
+label	L14:		
+printStr	"input an array of n ints"		
+=	i	0	
+label	L16:		
+<	i	n	
+jz	L15:		
+scanf	temp		
+=	globalArr[i]	temp	
++	i	1	i
+jmp	L16:		
+label	L15:		
+callvoid	sort		
+=	i	0	
+label	L18:		
+<	i	n	
+jz	L17:		
+printf	globalArr[i]		
++	i	1	i
+jmp	L18:		
+label	L17:		
+printStr	"the following number should be -338"		
+/	4	3	@temp15
+-	3	43	@T7
+*	@T7	@temp15	@T10
++	432	@T10	@T12
+-	@T12	5	@T14
++	@T14	3	@temp14
+/	20	10	@T2
++	@T2	50	@T4
+-	@T4	@temp14	@temp13
+=	n	@temp13	
+printf	n		
+printStr	"input a number n"		
+scanf	n		
+printStr	"the prime numbers that are less than n are as follows"		
+=	i	1	
+label	L19:		
+pushpara	i		
+call	isPrime	@temp16	
+!=	@temp16	0	
+jz	L20:		
+printf	i		
+label	L20:		
++	i	1	@temp17
+=	i	@temp17	
+<	i	n	
+jnz	L19:		
 endp	main		
