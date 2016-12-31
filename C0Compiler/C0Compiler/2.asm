@@ -223,7 +223,7 @@ main proc
 ; main prologue
 push ebp
 mov ebp, esp
-sub esp, 84
+sub esp, 76
 push esi
 push edi
 push ebx
@@ -233,29 +233,27 @@ lea eax, $str0
 push eax
 call printf
 add esp, 4
-lea eax, dword ptr [ebp-72]
+lea eax, dword ptr [ebp-64]
 push eax
 lea eax, [$formatC]
 push eax
 call scanf
 add esp, 8
-mov eax, 10
-cdq
-mov ebx, 3
-idiv ebx
-mov ebx, dword ptr [ebp-72]
-add ebx, 5
-mov dword ptr [ebp-20], ebx
+mov dword ptr [ebp-20], 3
+mov eax, dword ptr [ebp-64]
+add eax, 5
+mov dword ptr [ebp-16], eax
+mov ebx, dword ptr [ebp-16]
 mov ecx, dword ptr [ebp-20]
-sub ecx, eax
-mov dword ptr [ebp-72], ecx
-mov edi, dword ptr [ebp-72]
+sub ebx, ecx
+mov dword ptr [ebp-64], ebx
+mov edi, dword ptr [ebp-64]
 push edi
 lea edx, $formatCNewLine
 push edx
-mov dword ptr [ebp-28], eax
-mov dword ptr [ebp-68], ebx
-mov dword ptr [ebp-36], ecx
+mov dword ptr [ebp-60], eax
+mov dword ptr [ebp-28], ebx
+mov dword ptr [ebp-20], ecx
 call printf
 add esp, 8
 mov dword ptr [$fibArr+0*4], 1
@@ -263,34 +261,34 @@ mov dword ptr [$fibArr+1*4], 1
 push 9
 call @fib
 add esp, 4
-mov dword ptr [ebp-76], 0
+mov dword ptr [ebp-68], 0
 lea ebx, $str1
 push ebx
-mov dword ptr [ebp-40], eax
+mov dword ptr [ebp-32], eax
 call printf
 add esp, 4
 L13:
-mov eax, dword ptr [ebp-76]
+mov eax, dword ptr [ebp-68]
 mov eax, dword ptr [$fibArr+eax*4]
 push eax
 lea ebx, $formatDNewLine
 push ebx
-mov ebx, dword ptr [ebp-76]
+mov ebx, dword ptr [ebp-68]
 mov dword ptr [$fibArr+ebx*4], eax
-mov dword ptr [ebp-76], ebx
+mov dword ptr [ebp-68], ebx
 call printf
 add esp, 8
-mov eax, dword ptr [ebp-76]
+mov eax, dword ptr [ebp-68]
 add eax, 1
-mov dword ptr [ebp-76], eax
-mov ebx, dword ptr [ebp-76]
+mov dword ptr [ebp-68], eax
+mov ebx, dword ptr [ebp-68]
 mov ecx, 10
 cmp ebx, ecx
 jl L13
 lea ecx, $str2
 push ecx
-mov dword ptr [ebp-44], eax
-mov dword ptr [ebp-76], ebx
+mov dword ptr [ebp-36], eax
+mov dword ptr [ebp-68], ebx
 call printf
 add esp, 4
 lea eax, dword ptr [$n]
@@ -313,32 +311,32 @@ lea eax, $str4
 push eax
 call printf
 add esp, 4
-mov dword ptr [ebp-76], 0
+mov dword ptr [ebp-68], 0
 L16:
-mov eax, dword ptr [ebp-76]
+mov eax, dword ptr [ebp-68]
 mov ebx, dword ptr [$n]
 cmp eax, ebx
 jge L15
-lea ecx, dword ptr [ebp-80]
+lea ecx, dword ptr [ebp-72]
 push ecx
 lea ecx, [$formatD]
 push ecx
-mov dword ptr [ebp-76], eax
+mov dword ptr [ebp-68], eax
 mov dword ptr [$n], ebx
 call scanf
 add esp, 8
-mov eax, dword ptr [ebp-76]
-mov ebx, dword ptr [ebp-80]
+mov eax, dword ptr [ebp-68]
+mov ebx, dword ptr [ebp-72]
 mov dword ptr [$globalArr+eax*4], ebx
 add eax, 1
-mov dword ptr [ebp-76], eax
+mov dword ptr [ebp-68], eax
 jmp L16
 L15:
 call @sort
 add esp, 0
-mov dword ptr [ebp-76], 0
+mov dword ptr [ebp-68], 0
 L18:
-mov eax, dword ptr [ebp-76]
+mov eax, dword ptr [ebp-68]
 mov ebx, dword ptr [$n]
 cmp eax, ebx
 jge L17
@@ -346,51 +344,44 @@ mov ecx, dword ptr [$globalArr+eax*4]
 push ecx
 lea edi, $formatDNewLine
 push edi
-mov dword ptr [ebp-76], eax
+mov dword ptr [ebp-68], eax
 mov dword ptr [$n], ebx
-mov edi, dword ptr [ebp-76]
+mov edi, dword ptr [ebp-68]
 mov dword ptr [$globalArr+edi*4], ecx
 call printf
 add esp, 8
 add edi, 1
-mov dword ptr [ebp-76], edi
+mov dword ptr [ebp-68], edi
 jmp L18
 L17:
 lea eax, $str5
 push eax
 call printf
 add esp, 4
-mov eax, 4
-cdq
-mov ebx, 3
-idiv ebx
-mov ebx, dword ptr [ebp-32]
-mov ebx, -40
-mov dword ptr [ebp-32], ebx
-imul ebx, eax
-mov dword ptr [ebp-4], ebx
-add ebx, 432
-mov dword ptr [ebp-8], ebx
-sub ebx, 5
-mov dword ptr [ebp-12], ebx
-add ebx, 3
-mov dword ptr [ebp-56], eax
-mov eax, 20
-cdq
-mov ecx, 10
-idiv ecx
-mov dword ptr [ebp-16], eax
-add eax, 50
+mov dword ptr [ebp-48], 1
+mov dword ptr [ebp-20], -40
+mov eax, dword ptr [ebp-20]
+mov ebx, dword ptr [ebp-48]
+imul eax, ebx
 mov dword ptr [ebp-24], eax
-sub eax, ebx
-mov dword ptr [$n], eax
-mov ecx, dword ptr [$n]
-push ecx
-lea edi, $formatDNewLine
-push edi
-mov dword ptr [ebp-48], eax
-mov dword ptr [ebp-52], ebx
+add eax, 432
+mov dword ptr [ebp-8], eax
+sub eax, 5
+mov dword ptr [ebp-12], eax
+add eax, 3
+mov dword ptr [ebp-4], 2
+mov ecx, dword ptr [ebp-4]
+add ecx, 50
+mov dword ptr [ebp-16], ecx
+sub ecx, eax
 mov dword ptr [$n], ecx
+mov edi, dword ptr [$n]
+push edi
+lea edx, $formatDNewLine
+push edx
+mov dword ptr [ebp-44], eax
+mov dword ptr [ebp-48], ebx
+mov dword ptr [ebp-40], ecx
 call printf
 add esp, 8
 lea eax, $str6
@@ -407,27 +398,27 @@ lea eax, $str7
 push eax
 call printf
 add esp, 4
-mov dword ptr [ebp-76], 1
+mov dword ptr [ebp-68], 1
 L19:
-push dword ptr [ebp-76]
+push dword ptr [ebp-68]
 call @isPrime
 add esp, 4
 mov ebx, 0
 cmp eax, ebx
 je L20
-mov ebx, dword ptr [ebp-76]
+mov ebx, dword ptr [ebp-68]
 push ebx
 lea ecx, $formatDNewLine
 push ecx
-mov dword ptr [ebp-60], eax
-mov dword ptr [ebp-76], ebx
+mov dword ptr [ebp-52], eax
+mov dword ptr [ebp-68], ebx
 call printf
 add esp, 8
 L20:
-mov eax, dword ptr [ebp-76]
+mov eax, dword ptr [ebp-68]
 add eax, 1
-mov dword ptr [ebp-76], eax
-mov ebx, dword ptr [ebp-76]
+mov dword ptr [ebp-68], eax
+mov ebx, dword ptr [ebp-68]
 mov ecx, dword ptr [$n]
 cmp ebx, ecx
 jl L19

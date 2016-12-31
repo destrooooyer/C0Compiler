@@ -11,6 +11,7 @@ Optimizer::Optimizer(vector<Quadruple> imCodes, Table table)
 void Optimizer::optimize()
 {
 	//eliminateConsts();
+	constFolding();
 	toBlocks();
 	printBlocks();
 	CSEliminator cse(blocks);
@@ -24,6 +25,53 @@ void Optimizer::optimize()
 vector<Quadruple> Optimizer::getCodes()
 {
 	return imCodes;
+}
+
+void Optimizer::constFolding()
+{
+	for (int i = 0; i < imCodes.size(); i++)
+	{
+		if (imCodes[i].op == "+")
+		{
+			if (util::isnumber(imCodes[i].arg1[0]) &&
+				util::isnumber(imCodes[i].arg2[0]))
+			{
+				imCodes[i].op = "=";
+				imCodes[i].arg2 = util::int2string(util::parseInt(imCodes[i].arg1) + util::parseInt(imCodes[i].arg2));
+				imCodes[i].arg1 = imCodes[i].arg3;
+			}
+		}
+		else if (imCodes[i].op == "-")
+		{
+			if (util::isnumber(imCodes[i].arg1[0]) &&
+				util::isnumber(imCodes[i].arg2[0]))
+			{
+				imCodes[i].op = "=";
+				imCodes[i].arg2 = util::int2string(util::parseInt(imCodes[i].arg1) - util::parseInt(imCodes[i].arg2));
+				imCodes[i].arg1 = imCodes[i].arg3;
+			}
+		}
+		else if (imCodes[i].op == "*")
+		{
+			if (util::isnumber(imCodes[i].arg1[0]) &&
+				util::isnumber(imCodes[i].arg2[0]))
+			{
+				imCodes[i].op = "=";
+				imCodes[i].arg2 = util::int2string(util::parseInt(imCodes[i].arg1) * util::parseInt(imCodes[i].arg2));
+				imCodes[i].arg1 = imCodes[i].arg3;
+			}
+		}
+		else if (imCodes[i].op == "/")
+		{
+			if (util::isnumber(imCodes[i].arg1[0]) &&
+				util::isnumber(imCodes[i].arg2[0]))
+			{
+				imCodes[i].op = "=";
+				imCodes[i].arg2 = util::int2string(util::parseInt(imCodes[i].arg1) / util::parseInt(imCodes[i].arg2));
+				imCodes[i].arg1 = imCodes[i].arg3;
+			}
+		}
+	}
 }
 
 void Optimizer::eliminateConsts()

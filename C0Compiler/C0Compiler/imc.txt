@@ -70,10 +70,10 @@ endp	isPrime
 proc	main		
 printStr	"input a char"		
 scanf	chr		
-/	10	3	@T6
+=	@T5	3	
 +	chr	5	@temp9
 =	@T3	@temp9	
--	@T3	@T6	@temp10
+-	@T3	@T5	@temp10
 =	chr	@temp10	
 printf	chr		
 =	fibArr[0]	1	
@@ -115,15 +115,15 @@ printf	globalArr[i]
 jmp	L18:		
 label	L17:		
 printStr	"the following number should be -338"		
-/	4	3	@temp15
--	3	43	@T7
-*	@T7	@temp15	@T10
-+	432	@T10	@T12
--	@T12	5	@T14
-+	@T14	3	@temp14
-/	20	10	@T2
-+	@T2	50	@T4
--	@T4	@temp14	@temp13
+=	@temp15	1	
+=	@T5	-40	
+*	@T5	@temp15	@T8
++	432	@T8	@T10
+-	@T10	5	@T12
++	@T12	3	@temp14
+=	@T1	2	
++	@T1	50	@T3
+-	@T3	@temp14	@temp13
 =	n	@temp13	
 printf	n		
 printStr	"input a number n"		

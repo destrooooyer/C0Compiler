@@ -63,6 +63,7 @@ private:
 	void toBlocks();
 	void upDateTable();
 	void toCodes();
+	void constFolding();
 	std::vector<Block> blocks;
 };
 

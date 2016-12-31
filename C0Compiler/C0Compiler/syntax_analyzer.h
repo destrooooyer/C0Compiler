@@ -70,6 +70,7 @@ private:
 	Table table;
 	std::string funcName;
 	bool isVoid;
+	int err;
 
 	void printInfo(std::string str);
 	void _error(int errorType, int lineNumber);

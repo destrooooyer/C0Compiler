@@ -9,6 +9,7 @@ SyntaxAnalyzer::SyntaxAnalyzer(vector<Symbol> symbles)
 {
 	this->symbles = symbles;
 	this->iter = 0;
+	err = 0;
 }
 
 void SyntaxAnalyzer::printInfo(string str)
@@ -872,6 +873,7 @@ bool SyntaxAnalyzer::statementList()
 //＜语句＞    ::= ＜条件语句＞｜＜循环语句＞｜‘{’＜语句列＞‘}’｜＜有返回值函数调用语句＞; | ＜无返回值函数调用语句＞; ｜＜赋值语句＞; ｜＜读语句＞; ｜＜写语句＞; ｜＜空＞; ｜＜返回语句＞;
 bool SyntaxAnalyzer::statement()
 {
+	err = 0;
 	if (symbles[iter].getType() == "PRESERVED_WORD_IF")			//＜条件语句＞
 	{
 		ifStatement();
@@ -910,7 +912,7 @@ bool SyntaxAnalyzer::statement()
 			}
 			else	//; not found, error
 			{
-				_error(4, symbles[iter].getLineNumber());
+				_error(4, symbles[iter-1].getLineNumber());
 			}
 		}
 		else //＜赋值语句＞;
@@ -923,7 +925,7 @@ bool SyntaxAnalyzer::statement()
 			}
 			else	//; not found, error
 			{
-				_error(4, symbles[iter].getLineNumber());
+				_error(4, symbles[iter-1].getLineNumber());
 			}
 		}
 	}
@@ -936,7 +938,7 @@ bool SyntaxAnalyzer::statement()
 		}
 		else	//; not found, error
 		{
-			_error(4, symbles[iter].getLineNumber());
+			_error(4, symbles[iter-1].getLineNumber());
 		}
 
 	}
@@ -949,7 +951,7 @@ bool SyntaxAnalyzer::statement()
 		}
 		else	//; not found, error
 		{
-			_error(4, symbles[iter].getLineNumber());
+			_error(4, symbles[iter-1].getLineNumber());
 		}
 	}
 	else if (symbles[iter].getType() == "PRESERVED_WORD_RETURN")//＜返回语句＞;
@@ -962,7 +964,7 @@ bool SyntaxAnalyzer::statement()
 		}
 		else	//; not found, error
 		{
-			_error(4, symbles[iter].getLineNumber());
+			_error(4, symbles[iter-1].getLineNumber());
 		}
 	}
 	else if (symbles[iter].getType() == "SEMICOLON")			//＜空＞; 
@@ -974,6 +976,14 @@ bool SyntaxAnalyzer::statement()
 		_error(25, symbles[iter].getLineNumber());
 	}
 
+	if (err)
+	{
+		err = 0;
+		while (symbles[iter].getType() != "RBRACE"&&
+			symbles[iter].getType() != "SEMICOLON")
+			iter++;
+	}
+
 	printInfo("This is a <语句>");
 	return true;
 }
@@ -981,6 +991,7 @@ bool SyntaxAnalyzer::statement()
 //＜条件语句＞  ::=  if ‘(’＜条件＞‘)’＜语句＞［else＜语句＞］
 bool SyntaxAnalyzer::ifStatement()
 {
+	err = 0;
 	int flag = 0;	//whether there is an "else"
 	string label1;	//the label before "else", if the condition is false, jmp to label1 from the begin of this ifStatement
 	string label2;	//the label at the end of this ifStatement (if there is a "else"), jmp to label2 from the previous statement of "else" if the condition is true
@@ -1014,6 +1025,15 @@ bool SyntaxAnalyzer::ifStatement()
 		_error(11, symbles[iter].getLineNumber());
 	}
 
+	if (err)
+	{
+		err = 0;
+		while (symbles[iter].getType() != "RPAREN"&&
+			symbles[iter].getType() != "LBRACE")
+			iter++;
+	}
+	if (symbles[iter].getType() == "RPAREN")
+		iter++;
 	statement();
 
 	//［else＜语句＞］
@@ -1462,6 +1482,7 @@ bool SyntaxAnalyzer::parameterList(int count)
 //for‘(’＜标识符＞＝＜表达式＞;＜条件＞;＜标识符＞＝＜标识符＞(+|-)＜步长＞‘)’＜语句＞
 bool SyntaxAnalyzer::forStatement()
 {
+	err = 0;
 	//the structure is like this:
 	/*
 		i=0;
@@ -1674,6 +1695,14 @@ bool SyntaxAnalyzer::forStatement()
 	else	//identifier not found, error
 	{
 		_error(11, symbles[iter].getLineNumber());
+	}
+
+	if (err)
+	{
+		err = 0;
+		while (symbles[iter].getType() != "RPAREN"&&
+			symbles[iter].getType() != "LBRACE")
+			iter++;
 	}
 
 	statement();
@@ -2040,6 +2069,7 @@ bool SyntaxAnalyzer::returnStatement()
 
 void SyntaxAnalyzer::_error(int errorType, int lineNumber)
 {
+	err = 1;
 	syntaxErrors.push_back(Error(errorType, lineNumber));
 	//iter++;
 }
